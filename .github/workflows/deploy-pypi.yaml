@@ -1,0 +1,52 @@
+name: Validate code
+
+on: workflow_dispatch
+
+jobs:
+  replace_me:
+    name: Replace this job with actual build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare venv
+        run: |
+          set -e
+
+          echo 'Doing nothing!'
+
+# Action for deploying a package to pypi.org
+# Only use this action for public repos.
+#name: Release to PyPi
+#
+#on: workflow_dispatch
+#jobs:
+#  release_to_pypi:
+#    name: Release distribution to PyPi.org
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 0
+#      - uses: actions/setup-python@v2
+#        with:
+#          python-version: '3.9.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+#          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+#      - name: Install and Configure Poetry
+#        env:
+#          PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+#          set -e
+#
+#          curl -sSL https://install.python-poetry.org | python3 - --preview
+#
+#          poetry config pypi-token.pypi $PYPI_TOKEN
+#      - name: Build Package and Publish distribution 📦 to PyPi
+#        if: startsWith(github.ref, 'refs/tags')
+#        run: |
+#          set -e
+#
+#          version=$(git describe --tags --abbrev=7)
+#          sed -i "s/version = \"0.0.0\"/version = \"${version:1}\"/" pyproject.toml
+#
+#          poetry build && poetry publish

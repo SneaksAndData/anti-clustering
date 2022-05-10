@@ -1,0 +1,78 @@
+# Action for running unit tests in a spark container.
+# Uncomment lines below to enable this action.
+#name: Validate code
+#
+#on:
+# push:
+#   branches: [ main ]
+# pull_request:
+#   branches: [ main ]
+#
+#jobs:
+# validate_code:
+#   name: Validate code in spark container
+#   if: ${{ github.ref != 'refs/heads/main' }}
+#   runs-on: ubuntu-latest
+#   container:
+#     image: esdcrproduction.azurecr.io/spark:v1.3.4-bitnami-3.2.1-python-3.9.7-0
+#     credentials:
+#       username: ${{ secrets.AZCR_PROD_USER }}
+#       password: ${{ secrets.AZCR_PROD_TOKEN }}
+#     options: -u root -w /opt/bitnami/spark --mount type=tmpfs,destination=/home/spark
+#
+#   steps:
+#      - uses: actions/checkout@v2
+#      - name: Install Poetry
+#        run: |
+#          set -e
+#
+#          curl -sSL https://install.python-poetry.org | python3 - --preview
+#      - name: Install Dependencies
+#        run: |
+#          set -e
+#          export PATH="/github/home/.local/bin:$PATH"
+#          poetry install
+#      - name: Lint
+#        run: |
+#          set -e
+#          pypath=$(pwd)
+#          export PYTHONPATH="$pypath:$PYTHONPATH"
+#          export PATH="/github/home/.local/bin:$PATH"
+#          find ./<python_project> -type f -name "*.py" | xargs poetry run pylint
+#      - name: Unit test
+#        run: |
+#          set -e
+#          pypath=$(pwd)
+#          export PYTHONPATH="$pypath:$PYTHONPATH"
+#          export PATH="/github/home/.local/bin:$PATH"
+#          poetry run pytest ./tests
+# create_release:
+#   name: Create Release
+#   runs-on: ubuntu-latest
+#   needs: [ validate_code ]
+#   if: ${{ github.ref == 'refs/heads/main' && (needs.validate_code.result == 'success' || needs.validate_code.result == 'skipped') && always() }}
+#
+#   steps:
+#      - uses: actions/checkout@v2
+#      - run: git fetch --prune --unshallow
+#      - name: Create Release
+#        env:
+#          MAJOR_V: "0"
+#          MINOR_V: "0"
+#          GITHUB_TOKEN: ${{ github.token }}
+#        run: |
+#          set -e
+#          providedMajor=$MAJOR_V
+#          providedMinor=$MINOR_V
+#          currentVersion=$(git describe --tags --abbrev=7)
+#          currentMinor=$(echo $currentVersion | cut -d. -f2)
+#          currentMajor=$(echo $currentVersion | cut -d. -f1 | cut -dv -f2)
+#          if [[ $currentMajor -eq $providedMajor ]] && [[ $providedMinor -eq $currentMinor ]];
+#          then
+#            currentRevision=$(echo $(echo $currentVersion | rev | cut -d. -f1) | rev | cut -d- -f1)
+#            nextRevision=$(( currentRevision + 1 ))
+#          else
+#            nextRevision='0'
+#          fi
+#          nextVersion="v$providedMajor.$providedMinor.$nextRevision"
+#          gh release create $nextVersion --generate-notes

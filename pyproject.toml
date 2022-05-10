@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "python-project"
+version = "0.0.0"
+description = "My ESD Python Project"
+authors = ["ECCO Sneaks & Data <esdsupport@ecco.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "~6.2"
+pylint = "~2.12"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
