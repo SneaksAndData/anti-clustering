@@ -16,7 +16,7 @@ class ILPAntiClustering(AntiClustering):
         df: pd.DataFrame,
         numeric_columns: Optional[List[str]],
         categorical_columns: Optional[List[str]],
-        num_groups: int, 
+        num_groups: int,
         destination_column: str
     ) -> pd.DataFrame:
         if numeric_columns is None and categorical_columns is None:
