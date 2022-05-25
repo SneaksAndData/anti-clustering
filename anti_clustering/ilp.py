@@ -1,11 +1,10 @@
-from typing import List, Optional
+from typing import List, Optional, Union, Iterable
 import numpy as np
 import pandas as pd
 from ortools.linear_solver import pywraplp
-from scipy.spatial import distance_matrix
-from scipy.spatial.distance import squareform, pdist
 from sklearn.preprocessing import MinMaxScaler
 from ._base import AntiClustering
+
 
 from anti_clustering.union_find import UnionFind
 
@@ -33,25 +32,65 @@ class ILPAntiClustering(AntiClustering):
         min_group_size = np.floor(len(df)/num_groups)
         max_group_size = np.ceil(len(df)/num_groups)
 
+        print("Making costs")
         c = self._calculate_categorical_distance(df, categorical_columns) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
-        d = distance_matrix(data, data) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
+        d = self._calculate_numeric_distance(data) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
+
+        print("Making vars")
         x = np.asarray([[(solver.BoolVar(f'x_[{i}][{j}]')) for i in range(len(d))] for j in range(len(d))])
 
+        print("Making cluster assignment constrs")
         for i in range(len(d)):
             for j in range(i+1, len(d)):
                 for k in range(j+1, len(d)):
-                    solver.Add(-x[i][j] + x[i][k] + x[j][k] <= 1)
-                    solver.Add(x[i][j] - x[i][k] + x[j][k] <= 1)
-                    solver.Add(x[i][j] + x[i][k] - x[j][k] <= 1)
+                    self.add_constraint(
+                        solver=solver,
+                        vars_=[x[i][j], x[i][k], x[j][k]],
+                        coeffs=[-1.0, 1.0, 1.0],
+                        ub=1.0,
+                        lb=-solver.infinity()
+                    )
 
+                    self.add_constraint(
+                        solver=solver,
+                        vars_=[x[i][j], x[i][k], x[j][k]],
+                        coeffs=[1.0, -1.0, 1.0],
+                        ub=1.0,
+                        lb=-solver.infinity()
+                    )
+
+                    self.add_constraint(
+                        solver=solver,
+                        vars_=[x[i][j], x[i][k], x[j][k]],
+                        coeffs=[1.0, 1.0, -1.0],
+                        ub=1.0,
+                        lb=-solver.infinity()
+                    )
+
+        print("Making cluster size constrs")
         for i in range(len(d)):
             if i+1 < len(d):
-                solver.Add(sum([x[i][j] for j in range(i+1, len(d))]) + sum([x[k][i] for k in range(0, i)]) <= max_group_size-1)
-            if i > 0:
-                solver.Add(sum([x[i][j] for j in range(i+1, len(d))]) + sum([x[k][i] for k in range(0, i)]) >= min_group_size-1)
+                self.add_constraint(
+                    solver=solver,
+                    vars_=[x[i][j] for j in range(i+1, len(d))] + [x[k][i] for k in range(0, i)],
+                    coeffs=[1.0 for j in range(i+1, len(d))] + [1.0 for k in range(0, i)],
+                    ub=max_group_size-1.0,
+                    lb=-solver.infinity()
+                )
 
+            if i > 0:
+                self.add_constraint(
+                    solver=solver,
+                    vars_=[x[i][j] for j in range(i+1, len(d))] + [x[k][i] for k in range(0, i)],
+                    coeffs=[1.0 for j in range(i+1, len(d))] + [1.0 for k in range(0, i)],
+                    lb=min_group_size - 1.0,
+                    ub=solver.infinity()
+                )
+
+        print("Making obj")
         solver.Maximize(np.multiply(x, d).sum() + np.multiply(x, c).sum())
 
+        print("Solving")
         status = solver.Solve()
 
         if status != 0:
@@ -59,6 +98,7 @@ class ILPAntiClustering(AntiClustering):
 
         result = np.asarray([[x[i][j].solution_value() for i in range(len(d))] for j in range(len(d))])
 
+        print("Unioning clusters")
         components = UnionFind()
         components.initialize(range(len(d)))
 
@@ -71,5 +111,14 @@ class ILPAntiClustering(AntiClustering):
 
         return df
 
-    def _calculate_categorical_distance(self, df: pd.DataFrame, categorical_columns: List[str]):
-        return squareform(pdist(df[categorical_columns].apply(lambda x: pd.factorize(x)[0]), metric='hamming'))
+    def add_constraint(self, solver, lb: float, ub: float, coeffs: Union[List[float], float], vars_: Union[List[pywraplp.Variable], pywraplp.Variable]) -> pywraplp.Constraint:
+        #TODO: protect against bad inputs
+        constr: pywraplp.Constraint = solver.Constraint(lb, ub)
+
+        if isinstance(vars_, Iterable):
+            for (coeff, var) in zip(coeffs, vars_):
+                constr.SetCoefficient(var, coeff)
+        else:
+            constr.SetCoefficient(vars_, coeffs)
+
+        return constr

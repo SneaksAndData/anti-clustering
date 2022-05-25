@@ -2,8 +2,8 @@ class UnionFind:
     parent_node = {}
 
     def initialize(self, u):
-        for i in u:
-            self.parent_node[i] = i
+        for idx, i in enumerate(u):
+            self.parent_node[idx] = i
 
     def find(self, k):
         if self.parent_node[k] == k:
@@ -14,3 +14,6 @@ class UnionFind:
         x = self.find(a)
         y = self.find(b)
         self.parent_node[x] = y
+
+    def connected(self, a, b):
+        return self.find(a) == self.find(b)
