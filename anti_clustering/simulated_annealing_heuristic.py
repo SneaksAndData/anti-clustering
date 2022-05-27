@@ -1,3 +1,4 @@
+import math
 from typing import List, Optional
 import pandas as pd
 import random
@@ -7,7 +8,10 @@ from sklearn.preprocessing import MinMaxScaler
 
 from anti_clustering.union_find import UnionFind
 
-class ExchangeHeuristicAntiClustering(AntiClustering):
+ITERATIONS = 100
+ALPHA = 0.2
+
+class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
     def run(
         self,
         df: pd.DataFrame,
@@ -42,20 +46,28 @@ class ExchangeHeuristicAntiClustering(AntiClustering):
         x = np.array([[uf_init.connected(i, j) for i in range(len(d))] for j in range(len(d))])
 
         print("Solving")
-        current_objective = self.calculate_objective(x, c, d)
-        for i in range(len(d)):
-            if i % 5 == 0:
-                print(f'{i} of {len(d)}')
-            exchange_indices = self.get_exchanges(x, i)
-            if len(exchange_indices) == 0:
+        temperature = 10
+        obj = self.calculate_objective(x, c, d)
+        for iteration in range(ITERATIONS):
+            if iteration % 5 == 0:
+                print(f'{iteration} of {ITERATIONS}')
+
+            # generate neighbor
+            i = rnd.randint(0, len(d)-1)
+            possible_exchanges = self.get_exchanges(x, i)
+            if len(possible_exchanges) == 0:
                 continue
-            exchanges = [
-                (self.calculate_objective(self.swap(x, i, j), c, d), j) for j in exchange_indices
-            ]
-            best_exchange = max(exchanges)
-            if best_exchange[0] > current_objective:
-                x = self.swap(x, i, best_exchange[1])
-                current_objective = best_exchange[0]
+            j = possible_exchanges[rnd.randint(0, len(possible_exchanges)-1)]
+
+            new_x = self.swap(x, i, j)
+            new_obj = self.calculate_objective(new_x, c, d)
+
+            if self.accept(new_obj - obj, temperature, rnd):
+                obj = new_obj
+                x = new_x
+
+            temperature = temperature*ALPHA
+
 
         print("Unioning clusters")
         components = UnionFind()
@@ -70,16 +82,14 @@ class ExchangeHeuristicAntiClustering(AntiClustering):
 
         return df
 
-    def get_exchanges(self, matrix, i):
-        return np.nonzero(np.invert(matrix[i]))[0]
 
     def swap(self, matrix, i, j):
         matrix = matrix.copy()
-        tmp1 = matrix[i, ].copy()
+        tmp1 = matrix[i,].copy()
         tmp2 = matrix[:, i].copy()
-        matrix[i, ] = matrix[j, ]
+        matrix[i,] = matrix[j,]
         matrix[:, i] = matrix[:, j]
-        matrix[j, ] = tmp1
+        matrix[j,] = tmp1
         matrix[:, j] = tmp2
         matrix[i, j] = False
         matrix[j, i] = False
@@ -89,3 +99,15 @@ class ExchangeHeuristicAntiClustering(AntiClustering):
 
     def calculate_objective(self, x, c, d):
         return np.multiply(x, c + d).sum()
+
+    def accept(self, d, t, r):
+        return d >= 0 or math.exp(d/t) >= r.uniform(0, 1)
+
+    def get_exchanges(self, matrix, i):
+        return np.nonzero(np.invert(matrix[i]))[0]
+
+    # def get_neighbors(self, i, j, max_index):
+    #     return [
+    #         (i+di, j+dj) for di in range(-1,2) for dj in range(-1,2)
+    #         if 0 <= i + di <= max_index and 0 <= j + dj <= max_index
+    #     ]
