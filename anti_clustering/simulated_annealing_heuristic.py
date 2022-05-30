@@ -8,10 +8,12 @@ from sklearn.preprocessing import MinMaxScaler
 
 from anti_clustering.union_find import UnionFind
 
-ITERATIONS = 100
-ALPHA = 0.2
-
 class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
+    def __init__(self, alpha: float = 0.8, iterations: int = 200, starting_temperature: float = 10):
+        self.alpha = alpha
+        self.iterations = iterations
+        self.starting_temperature = starting_temperature
+
     def run(
         self,
         df: pd.DataFrame,
@@ -46,11 +48,11 @@ class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
         x = np.array([[uf_init.connected(i, j) for i in range(len(d))] for j in range(len(d))])
 
         print("Solving")
-        temperature = 10
+        temperature = self.starting_temperature
         obj = self.calculate_objective(x, c, d)
-        for iteration in range(ITERATIONS):
+        for iteration in range(self.iterations):
             if iteration % 5 == 0:
-                print(f'{iteration} of {ITERATIONS}')
+                print(f'{iteration} of {self.iterations}')
 
             # generate neighbor
             i = rnd.randint(0, len(d)-1)
@@ -66,7 +68,7 @@ class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
                 obj = new_obj
                 x = new_x
 
-            temperature = temperature*ALPHA
+            temperature = temperature*self.alpha
 
 
         print("Unioning clusters")
@@ -105,9 +107,3 @@ class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
 
     def get_exchanges(self, matrix, i):
         return np.nonzero(np.invert(matrix[i]))[0]
-
-    # def get_neighbors(self, i, j, max_index):
-    #     return [
-    #         (i+di, j+dj) for di in range(-1,2) for dj in range(-1,2)
-    #         if 0 <= i + di <= max_index and 0 <= j + dj <= max_index
-    #     ]
