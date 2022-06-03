@@ -1,15 +1,31 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""
+A simulated annealing approach to solving the anti-clustering problem.
+"""
+
 import math
 from typing import List, Optional
-import pandas as pd
 import random
+import pandas as pd
 import numpy as np
-from ._base import AntiClustering
 from sklearn.preprocessing import MinMaxScaler
-
+from anti_clustering._base import AntiClustering
 from anti_clustering.union_find import UnionFind
 
+
 class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
-    def __init__(self, alpha: float = 0.8, iterations: int = 200, starting_temperature: float = 10):
+    def __init__(self, verbose: bool = False, alpha: float = 0.8, iterations: int = 200, starting_temperature: float = 10):
+        super(SimulatedAnnealingHeuristicAntiClustering, self).__init__(verbose)
         self.alpha = alpha
         self.iterations = iterations
         self.starting_temperature = starting_temperature
@@ -32,11 +48,15 @@ class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
 
         data = df[numeric_columns].to_numpy()
 
-        print("Making costs")
+        if self.verbose:
+            print("Making costs")
+
         c = self._calculate_categorical_distance(df, categorical_columns) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
         d = self._calculate_numeric_distance(data) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
 
-        print("Initializing clusters")
+        if self.verbose:
+            print("Initializing clusters")
+
         initial_clusters = [i % num_groups for i in range(len(d)-num_groups)]
         rnd = random.Random(1)
         rnd.shuffle(initial_clusters)
@@ -44,14 +64,18 @@ class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
         uf_init = UnionFind()
         uf_init.initialize(initial_clusters)
 
-        print("Making vars")
+        if self.verbose:
+            print("Making vars")
+
         x = np.array([[uf_init.connected(i, j) for i in range(len(d))] for j in range(len(d))])
 
-        print("Solving")
+        if self.verbose:
+            print("Solving")
+
         temperature = self.starting_temperature
         obj = self.calculate_objective(x, c, d)
         for iteration in range(self.iterations):
-            if iteration % 5 == 0:
+            if self.verbose and iteration % 5 == 0:
                 print(f'{iteration} of {self.iterations}')
 
             # generate neighbor
@@ -70,8 +94,9 @@ class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
 
             temperature = temperature*self.alpha
 
+        if self.verbose:
+            print("Unioning clusters")
 
-        print("Unioning clusters")
         components = UnionFind()
         components.initialize(range(len(d)))
 
@@ -83,7 +108,6 @@ class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
         df[destination_column] = [components.find(i) for i in range(len(d))]
 
         return df
-
 
     def swap(self, matrix, i, j):
         matrix = matrix.copy()

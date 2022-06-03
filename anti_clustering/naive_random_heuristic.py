@@ -1,8 +1,22 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""
+The naive randomized way of solving the anti-clustering problem.
+"""
+
 from typing import List, Optional
 import pandas as pd
 import random
-import numpy as np
-from ._base import AntiClustering
+from anti_clustering._base import AntiClustering
 from sklearn.preprocessing import MinMaxScaler
 
 
@@ -23,14 +37,7 @@ class NaiveRandomHeuristicAntiClustering(AntiClustering):
         scaler = MinMaxScaler()
         df[numeric_columns] = scaler.fit_transform(df[numeric_columns])
 
-        data = df[numeric_columns].to_numpy()
-
-        print("Making costs")
-        c = self._calculate_categorical_distance(df, categorical_columns) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
-        d = self._calculate_numeric_distance(data) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
-
-        print("Initializing clusters")
-        initial_clusters = [i % num_groups for i in range(len(d))]
+        initial_clusters = [i % num_groups for i in range(len(df))]
         rnd = random.Random(1)
         rnd.shuffle(initial_clusters)
 
