@@ -1,6 +1,6 @@
 # Anti-clustering
 
-A generic library for solving the anti-clustering problem. While clustering algorithms will achieve high similarity within a cluster and low similarity between clusters, the anti-clustering algorithms will achieve the opposite; namely to minimise similarity within a cluster and maximise the similarity between clusters.
+A generic Python library for solving the anti-clustering problem. While clustering algorithms will achieve high similarity within a cluster and low similarity between clusters, the anti-clustering algorithms will achieve the opposite; namely to minimise similarity within a cluster and maximise the similarity between clusters.
 Currently, a handful of algorithms are implemented in this library:
 * An exact approach using a BIP formulation.
 * An enumerated exchange heuristic.
@@ -12,7 +12,7 @@ Psychological Methods, 26(2), 161–174. [https://doi.org/10.1037/met0000301](ht
 The paper is accompanied by a library for the R programming language: [https://github.com/m-Py/anticlust](anticlust).
 
 Differently to the [https://github.com/m-Py/anticlust](anticlust) R package, this library currently only have one objective function. 
-In this library the objective will maximise intra-cluster distance: Euclidean distance for number columns and Hamming distance for categorical columns.
+In this library, the objective will maximise intra-cluster distance: Euclidean distance for numerical columns and Hamming distance for categorical columns.
 
 ## Use cases
 Within software testing, anti-clustering can be used for generating test and control groups in AB-testing.
