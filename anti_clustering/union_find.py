@@ -37,7 +37,7 @@ class UnionFind(Generic[T]):
         """
         Find the root of component of element a.
         :param a: Element to find root of.
-        :return: The parent.
+        :return: The root of the component.
         """
         if self.parent[a] == a:
             return a
