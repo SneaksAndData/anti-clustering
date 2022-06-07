@@ -64,7 +64,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
         x = np.asarray([[(solver.BoolVar(f'x_[{i}][{j}]')) if j > i else False for j in range(len(d))] for i in range(len(d))])
 
         if self.verbose:
-            print("Making cluster assignment constrs")
+            print("Making cluster assignment constraints")
 
         for k in range(len(d)):
             for j in range(0, k):
@@ -94,26 +94,16 @@ class ExactClusterEditingAntiClustering(AntiClustering):
                     )
 
         if self.verbose:
-            print("Making cluster size constrs")
+            print("Making cluster size constraints")
 
         for i in range(len(d)):
-            if i+1 < len(d):
-                self.add_constraint(
-                    solver=solver,
-                    vars_=[x[i][j] for j in range(i+1, len(d))] + [x[k][i] for k in range(0, i)],
-                    coeffs=[1.0 for j in range(i+1, len(d))] + [1.0 for k in range(0, i)],
-                    ub=max_group_size-1.0,
-                    lb=-solver.infinity()
-                )
-
-            if i > 0:
-                self.add_constraint(
-                    solver=solver,
-                    vars_=[x[i][j] for j in range(i+1, len(d))] + [x[k][i] for k in range(0, i)],
-                    coeffs=[1.0 for j in range(i+1, len(d))] + [1.0 for k in range(0, i)],
-                    lb=min_group_size - 1.0,
-                    ub=solver.infinity()
-                )
+            self.add_constraint(
+                solver=solver,
+                vars_=[x[i][j] for j in range(i+1, len(d))] + [x[k][i] for k in range(0, i)],
+                coeffs=[1.0 for j in range(i+1, len(d))] + [1.0 for k in range(0, i)],
+                ub=max_group_size - 1.0 if i+1 < len(d) else solver.infinity(),
+                lb=min_group_size - 1.0 if i > 0 else -solver.infinity()
+            )
 
         if self.verbose:
             print("Making obj")
