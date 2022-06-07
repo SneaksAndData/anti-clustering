@@ -13,22 +13,52 @@
 A union find data structure for collecting results of the anti-clustering algorithm.
 """
 
-class UnionFind:
-    parent_node = {}
+from typing import Dict, TypeVar, Generic
 
-    def initialize(self, u):
-        for idx, i in enumerate(u):
-            self.parent_node[idx] = i
+T = TypeVar('T')
 
-    def find(self, k):
-        if self.parent_node[k] == k:
-            return k
-        return self.find(self.parent_node[k])
 
-    def union(self, a, b):
+class UnionFind(Generic[T]):
+    """
+    A union find data structure for collecting results of the anti-clustering algorithm.
+    """
+    # A mapping from an element to its parent. If a parent maps to itself, it is the root of the component.
+    parent = {}
+
+    def __init__(self, parent: Dict[T, T]):
+        """
+        Initialize UnionFind with components.
+        :param parent: The initial components.
+            In most use cases all components will point to themselves (example: {0: 0, 1: 1, ...}).
+        """
+        self.parent = parent
+
+    def find(self, a: T) -> T:
+        """
+        Find the root of component of element a.
+        :param a: Element to find root of.
+        :return: The parent.
+        """
+        if self.parent[a] == a:
+            return a
+        return self.find(self.parent[a])
+
+    def union(self, a: T, b: T) -> None:
+        """
+        Unify components of two elements.
+        :param a: Element to unify.
+        :param b: Other element to unify.
+        :return:
+        """
         x = self.find(a)
         y = self.find(b)
-        self.parent_node[x] = y
+        self.parent[x] = y
 
-    def connected(self, a, b):
+    def connected(self, a: T, b: T) -> bool:
+        """
+        Check if element a and b are in the same component.
+        :param a: Element to check.
+        :param b: Other element to check.
+        :return: Whether a and b are in the same component.
+        """
         return self.find(a) == self.find(b)

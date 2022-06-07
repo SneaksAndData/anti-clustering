@@ -14,120 +14,78 @@ A simulated annealing approach to solving the anti-clustering problem.
 """
 
 import math
-from typing import List, Optional
-import random
-import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-from anti_clustering._base import AntiClustering
-from anti_clustering.union_find import UnionFind
+import numpy.typing as npt
+from anti_clustering._cluster_swap_heuristic import ClusterSwapHeuristic
 
 
-class SimulatedAnnealingHeuristicAntiClustering(AntiClustering):
-    def __init__(self, verbose: bool = False, alpha: float = 0.8, iterations: int = 200, starting_temperature: float = 10):
-        super(SimulatedAnnealingHeuristicAntiClustering, self).__init__(verbose)
+class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
+    """
+    A simulated annealing approach to solving the anti-clustering problem.
+    """
+    def __init__(
+        self,
+        verbose: bool = False,
+        random_seed: int = None,
+        alpha: float = 0.9,
+        iterations: int = 2000,
+        starting_temperature: float = 10
+    ):
+        super().__init__(verbose=verbose, random_seed=random_seed)
         self.alpha = alpha
         self.iterations = iterations
         self.starting_temperature = starting_temperature
 
-    def run(
-        self,
-        df: pd.DataFrame,
-        numeric_columns: Optional[List[str]],
-        categorical_columns: Optional[List[str]],
-        num_groups: int,
-        destination_column: str
-    ) -> pd.DataFrame:
-        if numeric_columns is None and categorical_columns is None:
-            raise ValueError('Both numeric and categorical columns cannot be None.')
-
-        df = df.copy()
-
-        scaler = MinMaxScaler()
-        df[numeric_columns] = scaler.fit_transform(df[numeric_columns])
-
-        data = df[numeric_columns].to_numpy()
-
-        if self.verbose:
-            print("Making costs")
-
-        c = self._calculate_categorical_distance(df, categorical_columns) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
-        d = self._calculate_numeric_distance(data) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
-
-        if self.verbose:
-            print("Initializing clusters")
-
-        initial_clusters = [i % num_groups for i in range(len(d)-num_groups)]
-        rnd = random.Random(1)
-        rnd.shuffle(initial_clusters)
-        initial_clusters = [i for i in range(num_groups)] + initial_clusters
-        uf_init = UnionFind()
-        uf_init.initialize(initial_clusters)
-
-        if self.verbose:
-            print("Making vars")
-
-        x = np.array([[uf_init.connected(i, j) for i in range(len(d))] for j in range(len(d))])
+    def _solve(self, distance_matrix: npt.NDArray[float], num_groups: int) -> npt.NDArray[bool]:
+        # Start with random cluster assignment
+        cluster_assignment = self._get_random_clusters(num_groups=num_groups, num_elements=len(distance_matrix))
 
         if self.verbose:
             print("Solving")
 
         temperature = self.starting_temperature
-        obj = self.calculate_objective(x, c, d)
+        # Initial objective value
+        objective = self._calculate_objective(cluster_assignment, distance_matrix)
         for iteration in range(self.iterations):
             if self.verbose and iteration % 5 == 0:
-                print(f'{iteration} of {self.iterations}')
+                print(f'Iteration {iteration + 1} of {len(distance_matrix)}')
 
-            # generate neighbor
-            i = rnd.randint(0, len(d)-1)
-            possible_exchanges = self.get_exchanges(x, i)
+            # Select random element
+            i = self.rnd.randint(0, len(distance_matrix) - 1)
+            # Get possible swaps
+            possible_exchanges = self._get_exchanges(cluster_assignment, i)
             if len(possible_exchanges) == 0:
                 continue
-            j = possible_exchanges[rnd.randint(0, len(possible_exchanges)-1)]
+            # Select random possible swap.
+            j = possible_exchanges[self.rnd.randint(0, len(possible_exchanges)-1)]
 
-            new_x = self.swap(x, i, j)
-            new_obj = self.calculate_objective(new_x, c, d)
+            new_cluster_assignment = self._swap(cluster_assignment, i, j)
+            new_objective = self._calculate_objective(new_cluster_assignment, distance_matrix)
 
-            if self.accept(new_obj - obj, temperature, rnd):
-                obj = new_obj
-                x = new_x
+            # Select solution as current if accepted
+            if self._accept(new_objective - objective, temperature):
+                objective = new_objective
+                cluster_assignment = new_cluster_assignment
 
-            temperature = temperature*self.alpha
+            # Cool down temperature
+            temperature = temperature * self.alpha
 
-        if self.verbose:
-            print("Unioning clusters")
+        return cluster_assignment
 
-        components = UnionFind()
-        components.initialize(range(len(d)))
+    def _calculate_objective(self, cluster_assignment: npt.NDArray[bool], distance_matrix: npt.NDArray[float]) -> float:
+        """
+        Calculate objective value
+        :param cluster_assignment: Cluster assignment
+        :param distance_matrix: Distance matrix
+        :return: Objective value
+        """
+        return np.multiply(cluster_assignment, distance_matrix).sum()
 
-        for i in range(len(d)):
-            for j in range(0, i):
-                if x[i][j]:
-                    components.union(i, j)
-
-        df[destination_column] = [components.find(i) for i in range(len(d))]
-
-        return df
-
-    def swap(self, matrix, i, j):
-        matrix = matrix.copy()
-        tmp1 = matrix[i,].copy()
-        tmp2 = matrix[:, i].copy()
-        matrix[i,] = matrix[j,]
-        matrix[:, i] = matrix[:, j]
-        matrix[j,] = tmp1
-        matrix[:, j] = tmp2
-        matrix[i, j] = False
-        matrix[j, i] = False
-        matrix[i, i] = True
-        matrix[j, j] = True
-        return matrix
-
-    def calculate_objective(self, x, c, d):
-        return np.multiply(x, c + d).sum()
-
-    def accept(self, d, t, r):
-        return d >= 0 or math.exp(d/t) >= r.uniform(0, 1)
-
-    def get_exchanges(self, matrix, i):
-        return np.nonzero(np.invert(matrix[i]))[0]
+    def _accept(self, d: float, t: float) -> bool:
+        """
+        Simulated annealing acceptance function. Notice d/t is inverted because this is a maximisation problem.
+        :param d: Difference in objective
+        :param t: Current temperature
+        :return: Whether the solution is accepted or not.
+        """
+        return d >= 0 or math.exp(d/t) >= self.rnd.uniform(0, 1)

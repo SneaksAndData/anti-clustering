@@ -13,34 +13,13 @@
 The naive randomized way of solving the anti-clustering problem.
 """
 
-from typing import List, Optional
-import pandas as pd
-import random
-from anti_clustering._base import AntiClustering
-from sklearn.preprocessing import MinMaxScaler
+import numpy.typing as npt
+from anti_clustering._cluster_swap_heuristic import ClusterSwapHeuristic
 
 
-class NaiveRandomHeuristicAntiClustering(AntiClustering):
-    def run(
-        self,
-        df: pd.DataFrame,
-        numeric_columns: Optional[List[str]],
-        categorical_columns: Optional[List[str]],
-        num_groups: int,
-        destination_column: str
-    ) -> pd.DataFrame:
-        if numeric_columns is None and categorical_columns is None:
-            raise ValueError('Both numeric and categorical columns cannot be None.')
+class NaiveRandomHeuristicAntiClustering(ClusterSwapHeuristic):
+    def __init__(self, verbose: bool = False, random_seed: int = None):
+        super().__init__(verbose=verbose, random_seed=random_seed)
 
-        df = df.copy()
-
-        scaler = MinMaxScaler()
-        df[numeric_columns] = scaler.fit_transform(df[numeric_columns])
-
-        initial_clusters = [i % num_groups for i in range(len(df))]
-        rnd = random.Random(1)
-        rnd.shuffle(initial_clusters)
-
-        df[destination_column] = initial_clusters
-
-        return df
+    def _solve(self, distance_matrix: npt.NDArray[float], num_groups: int) -> npt.NDArray[bool]:
+        return self._get_random_clusters(num_groups=num_groups, num_elements=len(distance_matrix))

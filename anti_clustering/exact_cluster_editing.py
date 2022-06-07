@@ -17,59 +17,43 @@ Papenberg, M., & Klau, G. W. (2021). Using anticlustering to partition data sets
 Psychological Methods, 26(2), 161–174. https://doi.org/10.1037/met0000301
 """
 
-from typing import List, Optional, Union, Iterable
+from typing import List
 import numpy as np
-import pandas as pd
+import numpy.typing as npt
 from ortools.linear_solver import pywraplp
-from sklearn.preprocessing import MinMaxScaler
 from anti_clustering._base import AntiClustering
-from anti_clustering.union_find import UnionFind
 
 
 class ExactClusterEditingAntiClustering(AntiClustering):
-    def run(
-        self,
-        df: pd.DataFrame,
-        numeric_columns: Optional[List[str]],
-        categorical_columns: Optional[List[str]],
-        num_groups: int,
-        destination_column: str
-    ) -> pd.DataFrame:
-        if numeric_columns is None and categorical_columns is None:
-            raise ValueError('Both numeric and categorical columns cannot be None.')
-
-        df = df.copy()
-
-        scaler = MinMaxScaler()
-        df[numeric_columns] = scaler.fit_transform(df[numeric_columns])
-
-        data = df[numeric_columns].to_numpy()
-        solver: pywraplp.Solver = pywraplp.Solver.CreateSolver("GLOP")
+    """
+    MIP formulation for solving the anti-clustering problem.
+    """
+    def _solve(self, distance_matrix: npt.NDArray[float], num_groups: int) -> npt.NDArray[bool]:
+        solver: pywraplp.Solver = pywraplp.Solver.CreateSolver("SCIP")
 
         if self.verbose:
             solver.EnableOutput()
 
-        min_group_size = np.floor(len(df)/num_groups)
-        max_group_size = np.ceil(len(df)/num_groups)
+        min_group_size = np.floor(len(distance_matrix) / num_groups)
+        max_group_size = np.ceil(len(distance_matrix) / num_groups)
 
-        if self.verbose:
-            print("Making costs")
-
-        c = self._calculate_categorical_distance(df, categorical_columns) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
-        d = self._calculate_numeric_distance(data) if categorical_columns is not None and len(categorical_columns) > 0 else np.full(len(df), 0.0)
-
-        if self.verbose:
-            print("Making vars")
-
-        x = np.asarray([[(solver.BoolVar(f'x_[{i}][{j}]')) if j > i else False for j in range(len(d))] for i in range(len(d))])
+        # Cluster assignment are modelled as boolean assignments.
+        x = np.asarray([
+            [
+                (solver.BoolVar(f'x_[{i}][{j}]'))
+                if j > i else False
+                for j in range(len(distance_matrix))
+            ]
+            for i in range(len(distance_matrix))])
 
         if self.verbose:
             print("Making cluster assignment constraints")
 
-        for k in range(len(d)):
+        # Cluster assignment constraints
+        for k in range(len(distance_matrix)):
             for j in range(0, k):
                 for i in range(0, j):
-                    self.add_constraint(
+                    self._add_constraint(
                         solver=solver,
                         vars_=[x[i][j], x[i][k], x[j][k]],
                         coeffs=[-1.0, 1.0, 1.0],
@@ -77,7 +61,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
                         lb=-solver.infinity()
                     )
 
-                    self.add_constraint(
+                    self._add_constraint(
                         solver=solver,
                         vars_=[x[i][j], x[i][k], x[j][k]],
                         coeffs=[1.0, -1.0, 1.0],
@@ -85,7 +69,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
                         lb=-solver.infinity()
                     )
 
-                    self.add_constraint(
+                    self._add_constraint(
                         solver=solver,
                         vars_=[x[i][j], x[i][k], x[j][k]],
                         coeffs=[1.0, 1.0, -1.0],
@@ -96,19 +80,22 @@ class ExactClusterEditingAntiClustering(AntiClustering):
         if self.verbose:
             print("Making cluster size constraints")
 
-        for i in range(len(d)):
-            self.add_constraint(
+        # Cluster size constraints. Differently to original paper, we allow anti-clusters to be of different size if
+        # number of groups does not divide number og elements.
+        for i in range(len(distance_matrix)):
+            self._add_constraint(
                 solver=solver,
-                vars_=[x[i][j] for j in range(i+1, len(d))] + [x[k][i] for k in range(0, i)],
-                coeffs=[1.0 for j in range(i+1, len(d))] + [1.0 for k in range(0, i)],
-                ub=max_group_size - 1.0 if i+1 < len(d) else solver.infinity(),
+                vars_=[x[i][j] for j in range(i + 1, len(distance_matrix))] + [x[k][i] for k in range(0, i)],
+                coeffs=[1.0 for j in range(i + 1, len(distance_matrix))] + [1.0 for k in range(0, i)],
+                ub=max_group_size - 1.0 if i + 1 < len(distance_matrix) else solver.infinity(),
                 lb=min_group_size - 1.0 if i > 0 else -solver.infinity()
             )
 
         if self.verbose:
-            print("Making obj")
+            print("Making objective")
 
-        solver.Maximize(np.multiply(x, c + d).sum())
+        # Maximise internal anti-cluster distance
+        solver.Maximize(np.multiply(x, distance_matrix).sum())
 
         if self.verbose:
             print("Solving")
@@ -118,31 +105,38 @@ class ExactClusterEditingAntiClustering(AntiClustering):
         if status != 0:
             raise ValueError('Optimization failed!')
 
-        result = np.asarray([[x[i][j].solution_value() if j > i else None for j in range(len(d))] for i in range(len(d))])
+        cluster_assignment = np.asarray([
+            [
+                bool(x[i][j].solution_value())
+                if j > i else None
+                for j in range(len(distance_matrix))
+            ]
+            for i in range(len(distance_matrix))
+        ])
 
-        if self.verbose:
-            print("Unioning clusters")
+        return cluster_assignment
 
-        components = UnionFind()
-        components.initialize(range(len(d)))
-
-        for j in range(len(d)):
-            for i in range(0, j):
-                if result[i][j] == 1:
-                    components.union(i, j)
-
-        df[destination_column] = [components.find(i) for i in range(len(d))]
-
-        return df
-
-    def add_constraint(self, solver, lb: float, ub: float, coeffs: Union[List[float], float], vars_: Union[List[pywraplp.Variable], pywraplp.Variable]) -> pywraplp.Constraint:
-        #TODO: protect against bad inputs
+    def _add_constraint(
+        self,
+        solver: pywraplp.Solver,
+        lb: float,
+        ub: float,
+        coeffs: List[float],
+        vars_: List[pywraplp.Variable]
+    ) -> pywraplp.Constraint:
+        """
+        Utility for adding constraints in the Google OR-Tools framework. Adds single constraint on the form:
+        lb <= c_1x_1 + c_2x_2 + ... <= ub
+        :param solver: The OR-Tools solver.
+        :param lb: Lower bound.
+        :param ub: Upper bound.
+        :param coeffs: A list of coefficients. Each index must correspond to the same index in vars_.
+        :param vars_: A list of decision variables. Each index must correspond to the same index in coeffs.
+        :return: The OR-Tools constraint.
+        """
         constr: pywraplp.Constraint = solver.Constraint(lb, ub)
 
-        if isinstance(vars_, Iterable):
-            for (coeff, var) in zip(coeffs, vars_):
-                constr.SetCoefficient(var, coeff)
-        else:
-            constr.SetCoefficient(vars_, coeffs)
+        for (coeff, var) in zip(coeffs, vars_):
+            constr.SetCoefficient(var, coeff)
 
         return constr
