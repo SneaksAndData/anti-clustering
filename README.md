@@ -38,7 +38,7 @@ algorithm = ExactClusterEditingAntiClustering()
 
 df = algorithm.run(
     df=iris_df,
-    numeric_columns=list(iris_df.columns),
+    numerical_columns=list(iris_df.columns),
     categorical_columns=None,
     num_groups=2,
     destination_column='Cluster'

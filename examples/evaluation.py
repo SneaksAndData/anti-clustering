@@ -40,7 +40,7 @@ for method in methods:
         start_time = time.time()
         df = method.run(
             df=iris_df,
-            numeric_columns=list(iris_df.columns),
+            numerical_columns=list(iris_df.columns),
             categorical_columns=None,
             num_groups=k,
             destination_column='Cluster'
