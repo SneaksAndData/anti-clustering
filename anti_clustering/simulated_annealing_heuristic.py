@@ -31,6 +31,7 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
         iterations: int = 2000,
         starting_temperature: float = 10
     ):
+        # pylint: disable = R0913
         super().__init__(verbose=verbose, random_seed=random_seed)
         self.alpha = alpha
         self.iterations = iterations
@@ -73,6 +74,7 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
         return cluster_assignment
 
     def _calculate_objective(self, cluster_assignment: npt.NDArray[bool], distance_matrix: npt.NDArray[float]) -> float:
+        # pylint: disable = R0201
         """
         Calculate objective value
         :param cluster_assignment: Cluster assignment

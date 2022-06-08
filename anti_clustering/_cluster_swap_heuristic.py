@@ -20,11 +20,13 @@ from anti_clustering.union_find import UnionFind
 
 
 class ClusterSwapHeuristic(AntiClustering, ABC):
+    """Abstract class containing utilities for cluster swap-based heuristics."""
     def __init__(self, verbose: bool = False, random_seed: int = None):
         super().__init__(verbose=verbose)
         self.rnd = random.Random(random_seed)
 
     def _get_exchanges(self, cluster_assignment: npt.NDArray[bool], i: int) -> npt.NDArray[int]:
+        # pylint: disable = R0201
         """
         Given a cluster assignment matrix and element index, will return possible indexes to swap anti-clusters with.
         :param cluster_assignment: Cluster assignment matrix.
@@ -34,6 +36,7 @@ class ClusterSwapHeuristic(AntiClustering, ABC):
         return np.nonzero(np.invert(cluster_assignment[i]))[0]
 
     def _swap(self, cluster_assignment: npt.NDArray[bool], i: int, j: int) -> npt.NDArray[bool]:
+        # pylint: disable = R0201
         """
         Swap anti-clusters of elements i and j.
         :param cluster_assignment: Current cluster assignment.
@@ -66,8 +69,8 @@ class ClusterSwapHeuristic(AntiClustering, ABC):
         # to be roots of each their own component. All other elements are assigned a random root.
         initial_clusters = [i % num_groups for i in range(num_elements - num_groups)]
         self.rnd.shuffle(initial_clusters)
-        initial_clusters = [i for i in range(num_groups)] + initial_clusters
-        uf_init = UnionFind({i: cluster for i, cluster in enumerate(initial_clusters)})
+        initial_clusters = list(range(num_groups)) + initial_clusters
+        uf_init = UnionFind({i: cluster for i, cluster in enumerate(initial_clusters)})  # pylint: disable = R1721
 
         cluster_assignment = np.array(
             [[uf_init.connected(i, j) for i in range(num_elements)] for j in range(num_elements)]

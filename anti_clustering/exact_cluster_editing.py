@@ -124,6 +124,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
         coeffs: List[float],
         vars_: List[pywraplp.Variable]
     ) -> pywraplp.Constraint:
+        # pylint: disable = R0201, R0913
         """
         Utility for adding constraints in the Google OR-Tools framework. Adds single constraint on the form:
         lb <= c_1x_1 + c_2x_2 + ... <= ub

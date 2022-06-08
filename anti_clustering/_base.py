@@ -34,6 +34,7 @@ class AntiClustering(ABC):
         num_groups: int,
         destination_column: str
     ) -> pd.DataFrame:
+        # pylint: disable = R0913
         """
         Run anti clustering algorithm on dataset.
         :param df: The dataset to run anti-clustering on.
@@ -76,6 +77,7 @@ class AntiClustering(ABC):
         pass
 
     def _prepare_data(self, df: pd.DataFrame, numeric_columns: List[str], categorical_columns: List[str]) -> pd.DataFrame:
+        # pylint: disable = R0201
         """
         Prepare data for solving.
         :param df: The input dataframe.
@@ -102,6 +104,7 @@ class AntiClustering(ABC):
         destination_column: str,
         cluster_assignment_matrix: npt.NDArray[bool]
     ) -> pd.DataFrame:
+        # pylint: disable = R0201, R0913
         """
         Postprocess results and prepare for returning to caller.
         :param df: The input dataframe.
@@ -136,6 +139,7 @@ class AntiClustering(ABC):
         numeric_columns: List[str],
         categorical_columns: List[str]
     ) -> npt.NDArray[float]:
+        # pylint: disable = R0201
         """
         Calculate distance matrix between each pair of elements. Numeric columns default to Euclidean distance and
         categorical columns default to Hamming distance.

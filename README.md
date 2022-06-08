@@ -6,9 +6,9 @@ Currently, a handful of algorithms are implemented in this library:
 * An enumerated exchange heuristic.
 * A simulated annealing heuristic.
 
-The two former approaches are implemented as describing in following paper:
+The two former approaches are implemented as describing in following paper:\
 *Papenberg, M., & Klau, G. W. (2021). Using anticlustering to partition data sets into equivalent parts.
-Psychological Methods, 26(2), 161–174. [DOI](https://doi.org/10.1037/met0000301)*.  \
+Psychological Methods, 26(2), 161–174. [DOI](https://doi.org/10.1037/met0000301). [Preprint](https://psyarxiv.com/3razc/)* \
 The paper is accompanied by a library for the R programming language: [anticlust](https://github.com/m-Py/anticlust).
 
 Differently to the [anticlust](https://github.com/m-Py/anticlust) R package, this library currently only have one objective function. 

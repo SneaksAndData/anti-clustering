@@ -15,7 +15,7 @@ A union find data structure for collecting results of the anti-clustering algori
 
 from typing import Dict, TypeVar, Generic
 
-T = TypeVar('T')
+T = TypeVar('T')  # pylint: disable=C0103
 
 
 class UnionFind(Generic[T]):
