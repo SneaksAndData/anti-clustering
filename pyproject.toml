@@ -16,6 +16,7 @@ scikit-learn = "~1.1.1"
 [tool.poetry.group.dev.dependencies]
 pytest = "~6.2"
 pylint = "~2.12"
+pytest-cov = "3.0.0"
 
 [build-system]
 requires = ["poetry-core"]
