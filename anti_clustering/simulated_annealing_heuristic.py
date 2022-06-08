@@ -83,11 +83,11 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
         """
         return np.multiply(cluster_assignment, distance_matrix).sum()
 
-    def _accept(self, d: float, t: float) -> bool:
+    def _accept(self, delta: float, temperature: float) -> bool:
         """
         Simulated annealing acceptance function. Notice d/t is inverted because this is a maximisation problem.
-        :param d: Difference in objective
-        :param t: Current temperature
+        :param delta: Difference in objective
+        :param temperature: Current temperature
         :return: Whether the solution is accepted or not.
         """
-        return d >= 0 or math.exp(d/t) >= self.rnd.uniform(0, 1)
+        return delta >= 0 or math.exp(delta / temperature) >= self.rnd.uniform(0, 1)

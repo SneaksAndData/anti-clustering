@@ -74,7 +74,6 @@ class AntiClustering(ABC):
         :param num_groups: Number of anti-clusters to generate.
         :return:
         """
-        pass
 
     def _prepare_data(self, df: pd.DataFrame, numeric_columns: List[str], categorical_columns: List[str]) -> pd.DataFrame:
         # pylint: disable = R0201
