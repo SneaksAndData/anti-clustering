@@ -18,10 +18,10 @@ import pandas as pd
 import scipy.spatial
 from scipy.spatial.distance import squareform, pdist
 from sklearn.preprocessing import MinMaxScaler
-from anti_clustering.union_find import UnionFind
+from anti_clustering._union_find import UnionFind
 
 
-class AntiClustering(ABC):
+class AbstractAntiClustering(ABC):
     """Generic anti-clustering interface."""
     def __init__(self, verbose=False):
         self.verbose = verbose

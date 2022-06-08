@@ -20,7 +20,7 @@ Psychological Methods, 26(2), 161–174. https://doi.org/10.1037/met0000301
 import time
 from typing import List
 from anti_clustering import ExchangeHeuristicAntiClustering, SimulatedAnnealingHeuristicAntiClustering, \
-    NaiveRandomHeuristicAntiClustering, ExactClusterEditingAntiClustering, AntiClustering
+    NaiveRandomHeuristicAntiClustering, ExactClusterEditingAntiClustering, AbstractAntiClustering
 
 from sklearn import datasets
 import pandas as pd
@@ -28,7 +28,7 @@ import pandas as pd
 iris_data = datasets.load_iris(as_frame=True)
 iris_df = pd.DataFrame(data=iris_data.data, columns=iris_data.feature_names)
 
-methods: List[AntiClustering] = [
+methods: List[AbstractAntiClustering] = [
     ExchangeHeuristicAntiClustering(), SimulatedAnnealingHeuristicAntiClustering(alpha=0.9, iterations=2000),
     NaiveRandomHeuristicAntiClustering(), ExactClusterEditingAntiClustering()
 ]

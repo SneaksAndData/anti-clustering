@@ -15,4 +15,4 @@ from anti_clustering.simulated_annealing_heuristic import SimulatedAnnealingHeur
 from anti_clustering.naive_random_heuristic import NaiveRandomHeuristicAntiClustering
 from anti_clustering.exact_cluster_editing import ExactClusterEditingAntiClustering
 from anti_clustering.exchange_heuristic import ExchangeHeuristicAntiClustering
-from anti_clustering._base import AntiClustering
+from anti_clustering._base import AbstractAntiClustering

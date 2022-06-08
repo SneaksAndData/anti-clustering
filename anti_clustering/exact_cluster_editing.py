@@ -21,15 +21,19 @@ from typing import List
 import numpy as np
 import numpy.typing as npt
 from ortools.linear_solver import pywraplp
-from anti_clustering._base import AntiClustering
+from anti_clustering._base import AbstractAntiClustering
 
 
-class ExactClusterEditingAntiClustering(AntiClustering):
+class ExactClusterEditingAntiClustering(AbstractAntiClustering):
     """
     MIP formulation for solving the anti-clustering problem.
     """
+    def __init__(self, verbose: bool = False, solver_id: str = "SCIP"):
+        super().__init__(verbose=verbose)
+        self.solver_id = solver_id
+
     def _solve(self, distance_matrix: npt.NDArray[float], num_groups: int) -> npt.NDArray[bool]:
-        solver: pywraplp.Solver = pywraplp.Solver.CreateSolver("SCIP")
+        solver: pywraplp.Solver = pywraplp.Solver.CreateSolver(self.solver_id)
 
         if self.verbose:
             solver.EnableOutput()
