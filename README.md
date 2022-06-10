@@ -25,7 +25,7 @@ A and B groups should be as similar as possible to have a reliable basis of comp
 This is just one use case, probably many more exists.
 
 ## Usage
-The library API is based on Pandas dataframes. Below is an example based on the Iris dataset:
+The input to the algorithm is a Pandas dataframe with each row representing a data point. The output is the same dataframe with an extra column containing integer encoded cluster labels. Below is an example based on the Iris dataset:
 ```python
 from anti_clustering import ExactClusterEditingAntiClustering
 from sklearn import datasets
