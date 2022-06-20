@@ -15,11 +15,11 @@ from abc import ABC
 import random
 import numpy as np
 import numpy.typing as npt
-from anti_clustering._base import AbstractAntiClustering
+from anti_clustering._base import AntiClustering
 from anti_clustering._union_find import UnionFind
 
 
-class ClusterSwapHeuristic(AbstractAntiClustering, ABC):
+class ClusterSwapHeuristic(AntiClustering, ABC):
     """Abstract class containing utilities for cluster swap-based heuristics."""
     def __init__(self, verbose: bool = False, random_seed: int = None):
         super().__init__(verbose=verbose)

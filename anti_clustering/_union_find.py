@@ -33,7 +33,7 @@ class UnionFind(Generic[T]):
         """
         self.parent = parent
 
-    def find(self, a: T) -> T:
+    def _find(self, a: T) -> T:
         """
         Find the root of component of element a.
         :param a: Element to find root of.
@@ -41,7 +41,15 @@ class UnionFind(Generic[T]):
         """
         if self.parent[a] == a:
             return a
-        return self.find(self.parent[a])
+        return self._find(self.parent[a])
+
+    def find(self, a: T) -> T:
+        """
+        Find the root of component of element a.
+        :param a: Element to find root of.
+        :return: The root of the component.
+        """
+        return self._find(a)
 
     def union(self, a: T, b: T) -> None:
         """
@@ -50,8 +58,8 @@ class UnionFind(Generic[T]):
         :param b: Other element to unify.
         :return:
         """
-        x = self.find(a)
-        y = self.find(b)
+        x = self._find(a)
+        y = self._find(b)
         self.parent[x] = y
 
     def connected(self, a: T, b: T) -> bool:
@@ -61,4 +69,4 @@ class UnionFind(Generic[T]):
         :param b: Other element to check.
         :return: Whether a and b are in the same component.
         """
-        return self.find(a) == self.find(b)
+        return self._find(a) == self._find(b)

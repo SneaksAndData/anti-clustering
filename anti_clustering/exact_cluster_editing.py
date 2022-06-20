@@ -21,10 +21,10 @@ from typing import List
 import numpy as np
 import numpy.typing as npt
 from ortools.linear_solver import pywraplp
-from anti_clustering._base import AbstractAntiClustering
+from anti_clustering._base import AntiClustering
 
 
-class ExactClusterEditingAntiClustering(AbstractAntiClustering):
+class ExactClusterEditingAntiClustering(AntiClustering):
     """
     MIP formulation for solving the anti-clustering problem.
     """

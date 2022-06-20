@@ -21,7 +21,7 @@ from sklearn.preprocessing import MinMaxScaler
 from anti_clustering._union_find import UnionFind
 
 
-class AbstractAntiClustering(ABC):
+class AntiClustering(ABC):
     """Generic anti-clustering interface."""
     def __init__(self, verbose=False):
         self.verbose = verbose
