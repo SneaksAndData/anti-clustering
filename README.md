@@ -19,7 +19,7 @@ Within software testing, anti-clustering can be used for generating test and con
 Example: You have a webshop with a number of users. The webshop is undergoing active development and you have a new feature coming up. 
 This feature should be tested against as many different users as possible without testing against the entire user-base. 
 For that you can create a maximally diverse subset of the user-base to test against (the A group). 
-The remaining users (B group) will not test this feature. For that you can use the anti-clustering. 
+The remaining users (B group) will not test this feature. For dividing the user-base you can use the anti-clustering algorithms. 
 A and B groups should be as similar as possible to have a reliable basis of comparison, but internally in group A (and B) the elements should be as dissimilar as possible.
 
 This is just one use case, probably many more exists.
@@ -47,7 +47,6 @@ df = algorithm.run(
 
 ## Contributions
 If you have any suggestions or have found a bug, feel free to open issues. If you have implemented a new algorithm or know how to tweak the existing ones; PRs are very appreciated.
-All code submitted to the repository is subject to pyLint and testing.
 
 ## License
-This library is licensed under the Apache 2.0 license with ECCO Sneaks & Data being the copyright holder.
+This library is licensed under the Apache 2.0 license.
