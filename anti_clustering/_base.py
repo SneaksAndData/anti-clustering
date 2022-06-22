@@ -46,6 +46,9 @@ class AntiClustering(ABC):
         :param destination_column: The column to write results to.
         :return: The original dataframe with a destination_column added.
         """
+        numerical_columns = [] if numerical_columns is None else numerical_columns
+        categorical_columns = [] if categorical_columns is None else categorical_columns
+
         prepared_df = self._prepare_data(
             df=df,
             numerical_columns=numerical_columns,
@@ -92,8 +95,9 @@ class AntiClustering(ABC):
         df = df.copy()
 
         # Normalize to interval [0, 1]
-        scaler = MinMaxScaler()
-        df[numerical_columns] = scaler.fit_transform(df[numerical_columns])
+        if len(numerical_columns) > 0:
+            scaler = MinMaxScaler()
+            df[numerical_columns] = scaler.fit_transform(df[numerical_columns])
 
         return df
 
@@ -150,9 +154,13 @@ class AntiClustering(ABC):
         :return: The distance matrix.
         """
 
-        d = squareform(pdist(df[categorical_columns].apply(lambda x: pd.factorize(x)[0]), metric='hamming'))
+        d = 0
+        if len(categorical_columns) > 0:
+            d = squareform(pdist(df[categorical_columns].apply(lambda x: pd.factorize(x)[0]), metric='hamming'))
 
-        numerical_data = df[numerical_columns].to_numpy()
-        c = scipy.spatial.distance_matrix(numerical_data, numerical_data)
+        c = 0
+        if len(numerical_columns) > 0:
+            numerical_data = df[numerical_columns].to_numpy()
+            c = scipy.spatial.distance_matrix(numerical_data, numerical_data)
 
         return c + d

@@ -87,7 +87,7 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
 
     def _accept(self, delta: float, temperature: float) -> bool:
         """
-        Simulated annealing acceptance function. Notice d/t is inverted because this is a maximisation problem.
+        Simulated annealing acceptance function. Notice d/t is negated because this is a maximisation problem.
         :param delta: Difference in objective
         :param temperature: Current temperature
         :return: Whether the solution is accepted or not.

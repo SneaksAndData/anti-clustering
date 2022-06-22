@@ -10,8 +10,7 @@ import pandas as pd
         (
             pd.DataFrame(data={
                 'x': [0, 0, 2, 3, 3, 2],
-                'y': [1, 2, 2, 1, 0, 0],
-                'c': ['cat1'] * 6
+                'y': [1, 2, 2, 1, 0, 0]
             }),
             [0, 0, 0, 0, 0, 0],
             1
@@ -19,8 +18,7 @@ import pandas as pd
         (
             pd.DataFrame(data={
                 'x': [0, 0, 2, 3, 3, 2],
-                'y': [1, 2, 2, 1, 0, 0],
-                'c': ['cat1'] * 6
+                'y': [1, 2, 2, 1, 0, 0]
             }),
             [0, 1, 0, 1, 0, 1],
             2
@@ -28,8 +26,7 @@ import pandas as pd
         (
             pd.DataFrame(data={
                 'x': [0, 0, 2, 3, 3, 2],
-                'y': [1, 2, 2, 1, 0, 0],
-                'c': ['cat1'] * 6
+                'y': [1, 2, 2, 1, 0, 0]
             }),
             [0, 1, 2, 0, 1, 2],
             3
@@ -37,8 +34,7 @@ import pandas as pd
         (
             pd.DataFrame(data={
                 'x': [0, 2, 3, 0, 3, 2],
-                'y': [1, 2, 0, 2, 1, 0],
-                'c': ['cat1'] * 6
+                'y': [1, 2, 0, 2, 1, 0]
             }),
             [0, 2, 1, 1, 0, 2],
             3
@@ -46,8 +42,7 @@ import pandas as pd
         (
             pd.DataFrame(data={
                 'x': [0, 2, 3, 0, 3, 2],
-                'y': [1, 2, 0, 2, 1, 0],
-                'c': ['cat1'] * 6
+                'y': [1, 2, 0, 2, 1, 0]
             }),
             [0, 0, 0, 1, 1, 1],
             2
@@ -55,8 +50,7 @@ import pandas as pd
         (
             pd.DataFrame(data={
                 'x': [0, 2, 3, 0, 3, 2],
-                'y': [1, 2, 0, 2, 1, 0],
-                'c': ['cat1'] * 6
+                'y': [1, 2, 0, 2, 1, 0]
             }),
             [0, 0, 0, 0, 0, 0],
             1
@@ -74,7 +68,7 @@ def test_optimal_numerical_anti_clustering(df, optimal_clusters, num_groups, alg
     Test that numerical anti clustering returns optimal result except for NaiveRandomHeuristicAntiClustering.
     """
     column = 'Cluster'
-    result_df = algorithm.run(df=df, numerical_columns=['x', 'y'], num_groups=num_groups, destination_column=column, categorical_columns=['c'])
+    result_df = algorithm.run(df=df, numerical_columns=['x', 'y'], num_groups=num_groups, destination_column=column, categorical_columns=None)
 
     # NaiveRandomHeuristicAntiClustering will not find the optimal solution
     if not isinstance(algorithm, NaiveRandomHeuristicAntiClustering):
@@ -90,8 +84,6 @@ def test_optimal_numerical_anti_clustering(df, optimal_clusters, num_groups, alg
     [
         (
             pd.DataFrame(data={
-                'x': [0, 0, 0, 0, 0, 0],
-                'y': [1, 1, 1, 1, 1, 1],
                 'c': ['a', 'b', 'c', 'a', 'b', 'c']
             }),
             [0, 0, 1, 1, 1, 0],
@@ -99,8 +91,6 @@ def test_optimal_numerical_anti_clustering(df, optimal_clusters, num_groups, alg
         ),
         (
             pd.DataFrame(data={
-                'x': [0, 0, 0, 0, 0, 0],
-                'y': [1, 1, 1, 1, 1, 1],
                 'c': ['a', 'b', 'a', 'b', 'a', 'b']
             }),
             [0, 0, 1, 1, 2, 2],
@@ -119,7 +109,7 @@ def test_optimal_categorical_anti_clustering(df, optimal_clusters, num_groups, a
     Test that categorical anti clustering returns optimal result except for NaiveRandomHeuristicAntiClustering.
     """
     column = 'Cluster'
-    result_df = algorithm.run(df=df, numerical_columns=['x', 'y'], num_groups=num_groups, destination_column=column, categorical_columns=['c'])
+    result_df = algorithm.run(df=df, numerical_columns=None, num_groups=num_groups, destination_column=column, categorical_columns=['c'])
 
     # Assert that num_groups clusters are generated
     assert result_df[column].nunique() == num_groups
