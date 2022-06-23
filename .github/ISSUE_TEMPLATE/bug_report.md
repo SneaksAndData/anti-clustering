@@ -8,20 +8,25 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+
+A clear and concise description of what the bug is:
+* What algorithm/class did you use?
+* What error message did you get?
 
 **To Reproduce**
+
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+* Example code to reproduce behaviour
+* Example data to reproduce behaviour
 
 **Expected behavior**
+
 A clear and concise description of what you expected to happen.
 
 **Python Version:**
+
 Specify a Python version used to reproduce this issue.
 
 **Additional context**
+
 Add any other context about the problem here.
