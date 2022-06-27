@@ -8,7 +8,7 @@ Currently, a handful of algorithms are implemented in this library:
 
 Keep in mind anti-clustering is computationally difficult problem and may run slow even for small instance sizes. The current ILP does not finish in reasonable time when anti-clustering the Iris dataset (150 data points).
 
-The two former approaches are implemented as describing in following paper:\
+The two former approaches are implemented as described in following paper:\
 *Papenberg, M., & Klau, G. W. (2021). Using anticlustering to partition data sets into equivalent parts.
 Psychological Methods, 26(2), 161–174. [DOI](https://doi.org/10.1037/met0000301). [Preprint](https://psyarxiv.com/3razc/)* \
 The paper is accompanied by a library for the R programming language: [anticlust](https://github.com/m-Py/anticlust).
