@@ -26,6 +26,16 @@ A and B groups should be as similar as possible to have a reliable basis of comp
 
 This is just one use case, probably many more exists.
 
+## Installation
+
+The anti-clustering package is available on [PyPI](https://pypi.org/project/anti-clustering/). To install it, run the following command:
+
+```bash
+pip install anti-clustering
+```
+
+The package currently supports Python 3.8 and above. 
+
 ## Usage
 The input to the algorithm is a Pandas dataframe with each row representing a data point. The output is the same dataframe with an extra column containing integer encoded cluster labels. Below is an example based on the Iris dataset:
 ```python
