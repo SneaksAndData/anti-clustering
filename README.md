@@ -8,7 +8,7 @@ Currently, a handful of algorithms are implemented in this library:
 
 Keep in mind anti-clustering is computationally difficult problem and may run slow even for small instance sizes. The current ILP does not finish in reasonable time when anti-clustering the Iris dataset (150 data points).
 
-The two former approaches are implemented as describing in following paper:\
+The two former approaches are implemented as described in following paper:\
 *Papenberg, M., & Klau, G. W. (2021). Using anticlustering to partition data sets into equivalent parts.
 Psychological Methods, 26(2), 161–174. [DOI](https://doi.org/10.1037/met0000301). [Preprint](https://psyarxiv.com/3razc/)* \
 The paper is accompanied by a library for the R programming language: [anticlust](https://github.com/m-Py/anticlust).
@@ -25,6 +25,16 @@ The remaining users (B group) will not test this feature. For dividing the user-
 A and B groups should be as similar as possible to have a reliable basis of comparison, but internally in group A (and B) the elements should be as dissimilar as possible.
 
 This is just one use case, probably many more exists.
+
+## Installation
+
+The anti-clustering package is available on [PyPI](https://pypi.org/project/anti-clustering/). To install it, run the following command:
+
+```bash
+pip install anti-clustering
+```
+
+The package currently supports Python 3.8 and above. 
 
 ## Usage
 The input to the algorithm is a Pandas dataframe with each row representing a data point. The output is the same dataframe with an extra column containing integer encoded cluster labels. Below is an example based on the Iris dataset:
