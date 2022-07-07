@@ -48,6 +48,7 @@ class UnionFind(Generic[T]):
         :param a: Element to find root of.
         :return: The root of the component.
         """
+        # Compresses path while iterating up the tree.
         while a != self._parent[a]:
             b = self._parent[a]
             self._parent[a] = self._parent[b]
@@ -78,6 +79,8 @@ class UnionFind(Generic[T]):
 
         if x == y:
             return
+
+        # Weighted union - the smaller component becomes the child of the root of the larger component.
         if self._size[x] < self._size[y]:
             self._parent[x] = y
             self._size[y] += self._size[x]
