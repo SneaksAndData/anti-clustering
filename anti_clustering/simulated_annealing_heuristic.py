@@ -51,7 +51,7 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
         objective = self._calculate_objective(cluster_assignment, distance_matrix)
         for iteration in range(self.iterations):
             if self.verbose and iteration % 5 == 0:
-                print(f'Iteration {iteration + 1} of {len(distance_matrix)}')
+                print(f'Iteration {iteration + 1} of {self.iterations}')
 
             # Select random element
             i = self.rnd.randint(0, len(distance_matrix) - 1)
