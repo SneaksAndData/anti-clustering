@@ -18,7 +18,7 @@ Based on:
 Sedgewick, R. & Wayne, K. (2011), Algorithms, 4th Edition. , Addison-Wesley .
 """
 
-from typing import Dict, TypeVar, Generic
+from typing import TypeVar, Generic
 
 T = TypeVar('T')  # pylint: disable=C0103
 
