@@ -13,6 +13,9 @@
 # limitations under the License.
 """
 A union find data structure for collecting results of the anti-clustering algorithm.
+
+Based on:
+Sedgewick, R. & Wayne, K. (2011), Algorithms, 4th Edition. , Addison-Wesley .
 """
 
 from typing import Dict, TypeVar, Generic
@@ -23,17 +26,21 @@ T = TypeVar('T')  # pylint: disable=C0103
 class UnionFind(Generic[T]):
     """
     A union find data structure for collecting results of the anti-clustering algorithm.
+    This implementation uses the weighted quick union with path compression.
     """
     # A mapping from an element to its parent. If a parent maps to itself, it is the root of the component.
-    parent = {}
+    _parent = {}
+    _size = {}
+    components_count = 0
 
-    def __init__(self, parent: Dict[T, T]):
+    def __init__(self, initial_components_count: int):
         """
         Initialize UnionFind with components.
-        :param parent: The initial components.
-            In most use cases all components will point to themselves (example: {0: 0, 1: 1, ...}).
+        :param initial_components_count: The initial number of components.
         """
-        self.parent = parent
+        self.components_count = initial_components_count
+        self._parent = {i: i for i in range(initial_components_count)}
+        self._size = {i: 1 for i in range(initial_components_count)}
 
     def _find(self, a: T) -> T:
         """
@@ -41,9 +48,12 @@ class UnionFind(Generic[T]):
         :param a: Element to find root of.
         :return: The root of the component.
         """
-        if self.parent[a] == a:
-            return a
-        return self._find(self.parent[a])
+        while a != self._parent[a]:
+            b = self._parent[a]
+            self._parent[a] = self._parent[b]
+            a = b
+
+        return a
 
     def find(self, a: T) -> T:
         """
@@ -60,9 +70,21 @@ class UnionFind(Generic[T]):
         :param b: Other element to unify.
         :return:
         """
+        if a == b:
+            return
+
         x = self._find(a)
         y = self._find(b)
-        self.parent[x] = y
+
+        if x == y:
+            return
+        if self._size[x] < self._size[y]:
+            self._parent[x] = y
+            self._size[y] += self._size[x]
+        else:
+            self._parent[y] = x
+            self._size[x] += self._size[y]
+        self.components_count -= 1
 
     def connected(self, a: T, b: T) -> bool:
         """

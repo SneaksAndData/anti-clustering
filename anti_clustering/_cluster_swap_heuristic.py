@@ -72,7 +72,9 @@ class ClusterSwapHeuristic(AntiClustering, ABC):
         initial_clusters = [i % num_groups for i in range(num_elements - num_groups)]
         self.rnd.shuffle(initial_clusters)
         initial_clusters = list(range(num_groups)) + initial_clusters
-        uf_init = UnionFind({i: cluster for i, cluster in enumerate(initial_clusters)})  # pylint: disable = R1721
+        uf_init = UnionFind(len(initial_clusters))  # pylint: disable = R1721
+        for i, cluster in enumerate(initial_clusters):
+            uf_init.union(i, cluster)
 
         cluster_assignment = np.array(
             [[uf_init.connected(i, j) for i in range(num_elements)] for j in range(num_elements)]

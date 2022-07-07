@@ -119,7 +119,7 @@ class AntiClustering(ABC):
         :param cluster_assignment_matrix: A matrix containing for each pair of elements if they belong to the same anti-cluster.
         :return: The inputted dataframe with the new destination column.
         """
-        components = UnionFind({i: i for i in range(len(df))})
+        components = UnionFind(len(df))
 
         for j in range(len(df)):
             for i in range(0, j):
