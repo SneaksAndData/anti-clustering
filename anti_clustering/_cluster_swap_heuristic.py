@@ -28,7 +28,6 @@ class ClusterSwapHeuristic(AntiClustering, ABC):
         self.rnd = random.Random(random_seed)
 
     def _get_exchanges(self, cluster_assignment: npt.NDArray[bool], i: int) -> npt.NDArray[int]:
-        # pylint: disable = R0201
         """
         Given a cluster assignment matrix and element index, will return possible indexes to swap anti-clusters with.
         :param cluster_assignment: Cluster assignment matrix.
@@ -38,7 +37,6 @@ class ClusterSwapHeuristic(AntiClustering, ABC):
         return np.nonzero(np.invert(cluster_assignment[i]))[0]
 
     def _swap(self, cluster_assignment: npt.NDArray[bool], i: int, j: int) -> npt.NDArray[bool]:
-        # pylint: disable = R0201
         """
         Swap anti-clusters of elements i and j.
         :param cluster_assignment: Current cluster assignment.
