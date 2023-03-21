@@ -28,6 +28,7 @@ class ExchangeHeuristicAntiClustering(ClusterSwapHeuristic):
     """
     The exchange heuristic to solving the anti-clustering problem.
     """
+
     def __init__(self, verbose: bool = False, random_seed: int = None):
         super().__init__(verbose=verbose, random_seed=random_seed)
 
@@ -42,7 +43,7 @@ class ExchangeHeuristicAntiClustering(ClusterSwapHeuristic):
         current_objective = self._calculate_objective(cluster_assignment, distance_matrix)
         for i in range(len(distance_matrix)):
             if self.verbose and i % 5 == 0:
-                print(f'Iteration {i + 1} of {len(distance_matrix)}')
+                print(f"Iteration {i + 1} of {len(distance_matrix)}")
 
             # Get list of possible swaps
             exchange_indices = self._get_exchanges(cluster_assignment, i)
@@ -53,7 +54,8 @@ class ExchangeHeuristicAntiClustering(ClusterSwapHeuristic):
             # Calculate objective value for all possible swaps.
             # List contains tuples of obj. val. and swapped element index.
             exchanges = [
-                (self._calculate_objective(self._swap(cluster_assignment, i, j), distance_matrix), j) for j in exchange_indices
+                (self._calculate_objective(self._swap(cluster_assignment, i, j), distance_matrix), j)
+                for j in exchange_indices
             ]
 
             # Find best swap

@@ -25,13 +25,14 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
     """
     A simulated annealing approach to solving the anti-clustering problem.
     """
+
     def __init__(
         self,
         verbose: bool = False,
         random_seed: int = None,
         alpha: float = 0.9,
         iterations: int = 2000,
-        starting_temperature: float = 10
+        starting_temperature: float = 10,
     ):
         # pylint: disable = R0913
         super().__init__(verbose=verbose, random_seed=random_seed)
@@ -51,7 +52,7 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
         objective = self._calculate_objective(cluster_assignment, distance_matrix)
         for iteration in range(self.iterations):
             if self.verbose and iteration % 5 == 0:
-                print(f'Iteration {iteration + 1} of {self.iterations}')
+                print(f"Iteration {iteration + 1} of {self.iterations}")
 
             # Select random element
             i = self.rnd.randint(0, len(distance_matrix) - 1)
@@ -60,7 +61,7 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
             if len(possible_exchanges) == 0:
                 continue
             # Select random possible swap.
-            j = possible_exchanges[self.rnd.randint(0, len(possible_exchanges)-1)]
+            j = possible_exchanges[self.rnd.randint(0, len(possible_exchanges) - 1)]
 
             new_cluster_assignment = self._swap(cluster_assignment, i, j)
             new_objective = self._calculate_objective(new_cluster_assignment, distance_matrix)

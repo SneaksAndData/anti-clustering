@@ -23,6 +23,7 @@ class NaiveRandomHeuristicAntiClustering(ClusterSwapHeuristic):
     """
     The naive randomized way of solving the anti-clustering problem.
     """
+
     def __init__(self, verbose: bool = False, random_seed: int = None):
         super().__init__(verbose=verbose, random_seed=random_seed)
 

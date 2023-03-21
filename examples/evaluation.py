@@ -21,8 +21,13 @@ Psychological Methods, 26(2), 161–174. https://doi.org/10.1037/met0000301
 
 import time
 from typing import List
-from anti_clustering import ExchangeHeuristicAntiClustering, SimulatedAnnealingHeuristicAntiClustering, \
-    NaiveRandomHeuristicAntiClustering, ExactClusterEditingAntiClustering, AntiClustering
+from anti_clustering import (
+    ExchangeHeuristicAntiClustering,
+    SimulatedAnnealingHeuristicAntiClustering,
+    NaiveRandomHeuristicAntiClustering,
+    ExactClusterEditingAntiClustering,
+    AntiClustering,
+)
 
 from sklearn import datasets
 import pandas as pd
@@ -34,7 +39,7 @@ methods: List[AntiClustering] = [
     ExchangeHeuristicAntiClustering(),
     SimulatedAnnealingHeuristicAntiClustering(alpha=0.95, iterations=10000, starting_temperature=10000),
     NaiveRandomHeuristicAntiClustering(),
-    ExactClusterEditingAntiClustering()
+    ExactClusterEditingAntiClustering(),
 ]
 
 for method in methods:
@@ -47,16 +52,16 @@ for method in methods:
             numerical_columns=list(iris_df.columns),
             categorical_columns=None,
             num_groups=k,
-            destination_column='Cluster'
+            destination_column="Cluster",
         )
         time_taken = time.time() - start_time
 
         # Mean and stddev for each cluster for each feature
-        aggregated_df = df.groupby('Cluster').agg(['mean', 'std'])
+        aggregated_df = df.groupby("Cluster").agg(["mean", "std"])
         # Absolute difference between min and max mean/stddev in each feature
         difference_df = aggregated_df.max() - aggregated_df.min()
         # Mean of differences
-        mean_df = difference_df.reset_index(level=[1]).groupby(['level_1']).mean()
+        mean_df = difference_df.reset_index(level=[1]).groupby(["level_1"]).mean()
 
         print(f"∆M: {mean_df.loc['mean'][0]}")
         print(f"∆SD: {mean_df.loc['std'][0]}")

@@ -23,6 +23,7 @@ from anti_clustering._union_find import UnionFind
 
 class ClusterSwapHeuristic(AntiClustering, ABC):
     """Abstract class containing utilities for cluster swap-based heuristics."""
+
     def __init__(self, verbose: bool = False, random_seed: int = None):
         super().__init__(verbose=verbose)
         self.rnd = random.Random(random_seed)
@@ -45,11 +46,17 @@ class ClusterSwapHeuristic(AntiClustering, ABC):
         :return: Cluster assignment with i and j swapped.
         """
         cluster_assignment = cluster_assignment.copy()
-        tmp1 = cluster_assignment[i,].copy()
+        tmp1 = cluster_assignment[
+            i,
+        ].copy()
         tmp2 = cluster_assignment[:, i].copy()
-        cluster_assignment[i,] = cluster_assignment[j,]
+        cluster_assignment[i,] = cluster_assignment[
+            j,
+        ]
         cluster_assignment[:, i] = cluster_assignment[:, j]
-        cluster_assignment[j,] = tmp1
+        cluster_assignment[
+            j,
+        ] = tmp1
         cluster_assignment[:, j] = tmp2
         cluster_assignment[i, j] = False
         cluster_assignment[j, i] = False
