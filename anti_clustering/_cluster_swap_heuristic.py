@@ -46,17 +46,11 @@ class ClusterSwapHeuristic(AntiClustering, ABC):
         :return: Cluster assignment with i and j swapped.
         """
         cluster_assignment = cluster_assignment.copy()
-        tmp1 = cluster_assignment[
-            i,
-        ].copy()
+        tmp1 = cluster_assignment[i,].copy()
         tmp2 = cluster_assignment[:, i].copy()
-        cluster_assignment[i,] = cluster_assignment[
-            j,
-        ]
+        cluster_assignment[i,] = cluster_assignment[j,]
         cluster_assignment[:, i] = cluster_assignment[:, j]
-        cluster_assignment[
-            j,
-        ] = tmp1
+        cluster_assignment[j,] = tmp1
         cluster_assignment[:, j] = tmp2
         cluster_assignment[i, j] = False
         cluster_assignment[j, i] = False

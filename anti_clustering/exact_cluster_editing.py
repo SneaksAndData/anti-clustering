@@ -136,7 +136,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
         """
         constr: pywraplp.Constraint = solver.Constraint(lb, ub)
 
-        for (coeff, var) in zip(coeffs, vars_):
+        for coeff, var in zip(coeffs, vars_):
             constr.SetCoefficient(var, coeff)
 
         return constr
