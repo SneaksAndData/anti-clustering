@@ -20,7 +20,7 @@ Sedgewick, R. & Wayne, K. (2011), Algorithms, 4th Edition. , Addison-Wesley .
 
 from typing import TypeVar, Generic
 
-T = TypeVar('T')  # pylint: disable=C0103
+T = TypeVar("T")  # pylint: disable=C0103
 
 
 class UnionFind(Generic[T]):
@@ -28,6 +28,7 @@ class UnionFind(Generic[T]):
     A union find data structure for collecting results of the anti-clustering algorithm.
     This implementation uses the weighted quick union with path compression.
     """
+
     # A mapping from an element to its parent. If a parent maps to itself, it is the root of the component.
     _parent = {}
     _size = {}

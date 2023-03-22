@@ -30,6 +30,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
     """
     MIP formulation for solving the anti-clustering problem.
     """
+
     def __init__(self, verbose: bool = False, solver_id: str = "SCIP"):
         super().__init__(verbose=verbose)
         self.solver_id = solver_id
@@ -44,13 +45,12 @@ class ExactClusterEditingAntiClustering(AntiClustering):
         max_group_size = np.ceil(len(distance_matrix) / num_groups)
 
         # Cluster assignment are modelled as boolean assignments.
-        x = np.asarray([
+        x = np.asarray(
             [
-                (solver.BoolVar(f'x_[{i}][{j}]'))
-                if j > i else False
-                for j in range(len(distance_matrix))
+                [(solver.BoolVar(f"x_[{i}][{j}]")) if j > i else False for j in range(len(distance_matrix))]
+                for i in range(len(distance_matrix))
             ]
-            for i in range(len(distance_matrix))])
+        )
 
         if self.verbose:
             print("Making cluster assignment constraints")
@@ -64,7 +64,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
                         vars_=[x[i][j], x[i][k], x[j][k]],
                         coeffs=[-1.0, 1.0, 1.0],
                         ub=1.0,
-                        lb=-solver.infinity()
+                        lb=-solver.infinity(),
                     )
 
                     self._add_constraint(
@@ -72,7 +72,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
                         vars_=[x[i][j], x[i][k], x[j][k]],
                         coeffs=[1.0, -1.0, 1.0],
                         ub=1.0,
-                        lb=-solver.infinity()
+                        lb=-solver.infinity(),
                     )
 
                     self._add_constraint(
@@ -80,7 +80,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
                         vars_=[x[i][j], x[i][k], x[j][k]],
                         coeffs=[1.0, 1.0, -1.0],
                         ub=1.0,
-                        lb=-solver.infinity()
+                        lb=-solver.infinity(),
                     )
 
         if self.verbose:
@@ -94,7 +94,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
                 vars_=[x[i][j] for j in range(i + 1, len(distance_matrix))] + [x[k][i] for k in range(0, i)],
                 coeffs=[1.0 for j in range(i + 1, len(distance_matrix))] + [1.0 for k in range(0, i)],
                 ub=max_group_size - 1.0 if i + 1 < len(distance_matrix) else solver.infinity(),
-                lb=min_group_size - 1.0 if i > 0 else -solver.infinity()
+                lb=min_group_size - 1.0 if i > 0 else -solver.infinity(),
             )
 
         if self.verbose:
@@ -109,26 +109,19 @@ class ExactClusterEditingAntiClustering(AntiClustering):
         status = solver.Solve()
 
         if status != 0:
-            raise ValueError('Optimization failed!')
+            raise ValueError("Optimization failed!")
 
-        cluster_assignment = np.asarray([
+        cluster_assignment = np.asarray(
             [
-                bool(x[i][j].solution_value())
-                if j > i else None
-                for j in range(len(distance_matrix))
+                [bool(x[i][j].solution_value()) if j > i else None for j in range(len(distance_matrix))]
+                for i in range(len(distance_matrix))
             ]
-            for i in range(len(distance_matrix))
-        ])
+        )
 
         return cluster_assignment
 
     def _add_constraint(
-        self,
-        solver: pywraplp.Solver,
-        lb: float,
-        ub: float,
-        coeffs: List[float],
-        vars_: List[pywraplp.Variable]
+        self, solver: pywraplp.Solver, lb: float, ub: float, coeffs: List[float], vars_: List[pywraplp.Variable]
     ) -> pywraplp.Constraint:
         # pylint: disable = R0913
         """
@@ -143,7 +136,7 @@ class ExactClusterEditingAntiClustering(AntiClustering):
         """
         constr: pywraplp.Constraint = solver.Constraint(lb, ub)
 
-        for (coeff, var) in zip(coeffs, vars_):
+        for coeff, var in zip(coeffs, vars_):
             constr.SetCoefficient(var, coeff)
 
         return constr

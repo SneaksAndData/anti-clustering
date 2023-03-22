@@ -25,6 +25,7 @@ from anti_clustering._union_find import UnionFind
 
 class AntiClustering(ABC):
     """Generic anti-clustering interface."""
+
     def __init__(self, verbose=False):
         self.verbose = verbose
 
@@ -34,7 +35,7 @@ class AntiClustering(ABC):
         numerical_columns: Optional[List[str]],
         categorical_columns: Optional[List[str]],
         num_groups: int,
-        destination_column: str
+        destination_column: str,
     ) -> pd.DataFrame:
         # pylint: disable = R0913
         """
@@ -50,15 +51,11 @@ class AntiClustering(ABC):
         categorical_columns = [] if categorical_columns is None else categorical_columns
 
         prepared_df = self._prepare_data(
-            df=df,
-            numerical_columns=numerical_columns,
-            categorical_columns=categorical_columns
+            df=df, numerical_columns=numerical_columns, categorical_columns=categorical_columns
         )
 
         distance_matrix = self._get_distance_matrix(
-            df=prepared_df,
-            numerical_columns=numerical_columns,
-            categorical_columns=categorical_columns
+            df=prepared_df, numerical_columns=numerical_columns, categorical_columns=categorical_columns
         )
 
         cluster_assignment = self._solve(distance_matrix=distance_matrix, num_groups=num_groups)
@@ -68,7 +65,7 @@ class AntiClustering(ABC):
             numerical_columns=numerical_columns,
             categorical_columns=categorical_columns,
             destination_column=destination_column,
-            cluster_assignment_matrix=cluster_assignment
+            cluster_assignment_matrix=cluster_assignment,
         )
 
     @abstractmethod
@@ -80,7 +77,9 @@ class AntiClustering(ABC):
         :return:
         """
 
-    def _prepare_data(self, df: pd.DataFrame, numerical_columns: List[str], categorical_columns: List[str]) -> pd.DataFrame:
+    def _prepare_data(
+        self, df: pd.DataFrame, numerical_columns: List[str], categorical_columns: List[str]
+    ) -> pd.DataFrame:
         """
         Prepare data for solving.
         :param df: The input dataframe.
@@ -89,7 +88,7 @@ class AntiClustering(ABC):
         :return: the prepared dataframe.
         """
         if numerical_columns is None and categorical_columns is None:
-            raise ValueError('Both numerical and categorical columns cannot be None.')
+            raise ValueError("Both numerical and categorical columns cannot be None.")
 
         df = df.copy()
 
@@ -106,7 +105,7 @@ class AntiClustering(ABC):
         numerical_columns: List[str],
         categorical_columns: List[str],
         destination_column: str,
-        cluster_assignment_matrix: npt.NDArray[bool]
+        cluster_assignment_matrix: npt.NDArray[bool],
     ) -> pd.DataFrame:
         # pylint: disable = R0913
         """
@@ -130,18 +129,13 @@ class AntiClustering(ABC):
         # Normalize cluster labels. The algorithm assignment of cluster labels may be non-deterministic.
         # Ensure that all labels are enumerated starting from 0 without gaps.
         cluster_labels = df.sort_values(by=[*numerical_columns, *categorical_columns])[destination_column].unique()
-        mapping = {
-            k: i for i, k in enumerate(cluster_labels)
-        }
-        df = df.replace({'Cluster': mapping})
+        mapping = {k: i for i, k in enumerate(cluster_labels)}
+        df = df.replace({"Cluster": mapping})
 
         return df
 
     def _get_distance_matrix(
-        self,
-        df: pd.DataFrame,
-        numerical_columns: List[str],
-        categorical_columns: List[str]
+        self, df: pd.DataFrame, numerical_columns: List[str], categorical_columns: List[str]
     ) -> npt.NDArray[float]:
         """
         Calculate distance matrix between each pair of elements. Numeric columns default to Euclidean distance and
@@ -154,7 +148,7 @@ class AntiClustering(ABC):
 
         d = 0
         if len(categorical_columns) > 0:
-            d = squareform(pdist(df[categorical_columns].apply(lambda x: pd.factorize(x)[0]), metric='hamming'))
+            d = squareform(pdist(df[categorical_columns].apply(lambda x: pd.factorize(x)[0]), metric="hamming"))
 
         c = 0
         if len(numerical_columns) > 0:

@@ -23,6 +23,7 @@ from anti_clustering._union_find import UnionFind
 
 class ClusterSwapHeuristic(AntiClustering, ABC):
     """Abstract class containing utilities for cluster swap-based heuristics."""
+
     def __init__(self, verbose: bool = False, random_seed: int = None):
         super().__init__(verbose=verbose)
         self.rnd = random.Random(random_seed)

@@ -24,6 +24,11 @@ jobs:
            pypi_token_username: ${{ secrets.AZOPS_PAT_USER }}
            pypi_token: ${{ secrets.AZOPS_PAT }}
            install_extras: "all"
+      - name: Black
+        shell: bash
+        run: |
+          set -e
+          poetry run black . --check --diff
       - name: Lint
         run: |
           set -e
