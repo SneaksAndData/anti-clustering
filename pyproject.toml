@@ -10,7 +10,7 @@ python = ">=3.8,<3.11"
 ortools = "==9.3.10497"
 pandas = "~1.4.4"
 numpy = "~1.23.1"
-scipy = "~1.9.0"
+scipy = ">=1.9,<1.11"
 scikit-learn = "~1.1.1"
 
 [tool.poetry.group.dev.dependencies]
