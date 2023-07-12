@@ -45,7 +45,7 @@ class UnionFind(Generic[T]):
 
     def _find(self, element: T) -> T:
         """
-        Find the root of component of element a.
+        Find the root of component of element.
         :param element: Element to find root of.
         :return: The root of the component.
         """
@@ -59,7 +59,7 @@ class UnionFind(Generic[T]):
 
     def find(self, element: T) -> T:
         """
-        Find the root of component of element a.
+        Find the root of component of element.
         :param element: Element to find root of.
         :return: The root of the component.
         """
@@ -92,9 +92,9 @@ class UnionFind(Generic[T]):
 
     def connected(self, element_1: T, element_2: T) -> bool:
         """
-        Check if element a and b are in the same component.
+        Check if element 1 and 2 are in the same component.
         :param element_1: Element to check.
         :param element_2: Other element to check.
-        :return: Whether a and b are in the same component.
+        :return: Whether 1 and 2 are in the same component.
         """
         return self._find(element_1) == self._find(element_2)
