@@ -114,7 +114,8 @@ class AntiClustering(ABC):
         :param numerical_columns: Columns in dataset to use for anti-clustering containing numbers.
         :param categorical_columns: Columns in dataset to use for anti-clustering containing strings or dates.
         :param destination_column: The column to write results to.
-        :param cluster_assignment_matrix: A matrix containing for each pair of elements if they belong to the same anti-cluster.
+        :param cluster_assignment_matrix: A matrix containing for each pair of elements if they belong to the same
+        anti-cluster.
         :return: The inputted dataframe with the new destination column.
         """
         components = UnionFind(len(df))
@@ -146,13 +147,15 @@ class AntiClustering(ABC):
         :return: The distance matrix.
         """
 
-        d = 0
+        categorical_distance = 0
         if len(categorical_columns) > 0:
-            d = squareform(pdist(df[categorical_columns].apply(lambda x: pd.factorize(x)[0]), metric="hamming"))
+            categorical_distance = squareform(
+                pdist(df[categorical_columns].apply(lambda x: pd.factorize(x)[0]), metric="hamming")
+            )
 
-        c = 0
+        numeric_distance = 0
         if len(numerical_columns) > 0:
             numerical_data = df[numerical_columns].to_numpy()
-            c = scipy.spatial.distance_matrix(numerical_data, numerical_data)
+            numeric_distance = scipy.spatial.distance_matrix(numerical_data, numerical_data)
 
-        return c + d
+        return numeric_distance + categorical_distance
