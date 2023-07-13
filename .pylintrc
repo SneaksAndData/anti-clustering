@@ -4,8 +4,12 @@
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
-disable=W0212,R0903,C0301
+disable=W0212,R0903,C0301,R0914
 
 [Format]
 
 good-names=i,j,k,e,ex,_,pk,x,y,df,f,d,a,b,c,lb,ub
+
+[DESIGN]
+max-args=10
+max-attributes=10

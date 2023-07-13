@@ -88,7 +88,7 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
             cluster_assignment = self._get_random_clusters(num_groups=num_groups, num_elements=len(distance_matrix))
 
         # Select best solution, maximizing objective
-        best_objective, best_cluster_assignment = max(candidate_solutions, key=lambda x: x[0])
+        _, best_cluster_assignment = max(candidate_solutions, key=lambda x: x[0])
 
         return best_cluster_assignment
 
