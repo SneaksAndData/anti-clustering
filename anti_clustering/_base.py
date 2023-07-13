@@ -90,12 +90,11 @@ class AntiClustering(ABC):
         if numerical_columns is None and categorical_columns is None:
             raise ValueError("Both numerical and categorical columns cannot be None.")
 
-        df = df.copy()
-
         # Normalize to interval [0, 1]
         if len(numerical_columns) > 0:
             scaler = MinMaxScaler()
-            df[numerical_columns] = scaler.fit_transform(df[numerical_columns])
+            transformed_columns = scaler.fit_transform(df[numerical_columns])
+            df = df.assign(**{col: transformed_columns[:, i] for i, col in enumerate(numerical_columns)})
 
         return df
 
@@ -124,7 +123,7 @@ class AntiClustering(ABC):
                 if cluster_assignment_matrix[i][j] == 1:
                     components.union(i, j)
 
-        df[destination_column] = [components.find(i) for i in range(len(df))]
+        df = df.assign(**{destination_column: [components.find(i) for i in range(len(df))]})
 
         # Normalize cluster labels. The algorithm assignment of cluster labels may be non-deterministic.
         # Ensure that all labels are enumerated starting from 0 without gaps.
