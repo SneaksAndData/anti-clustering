@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  validate_commit:
-    name: Validate commit
+  validate_code:
+    name: Validate code
     runs-on: ubuntu-latest
     if: ${{ github.ref != 'refs/heads/main' }}
     steps:
