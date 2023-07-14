@@ -32,6 +32,4 @@ jobs:
       - name: Lint
         run: |
           set -e
-          pypath=$(pwd)
-          export PYTHONPATH="$pypath:$PYTHONPATH"
           find ./anti_clustering -type f -name "*.py" | xargs poetry run pylint
