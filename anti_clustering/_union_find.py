@@ -43,58 +43,58 @@ class UnionFind(Generic[T]):
         self._parent = {i: i for i in range(initial_components_count)}
         self._size = {i: 1 for i in range(initial_components_count)}
 
-    def _find(self, a: T) -> T:
+    def _find(self, element: T) -> T:
         """
-        Find the root of component of element a.
-        :param a: Element to find root of.
+        Find the root of component of element.
+        :param element: Element to find root of.
         :return: The root of the component.
         """
         # Compresses path while iterating up the tree.
-        while a != self._parent[a]:
-            b = self._parent[a]
-            self._parent[a] = self._parent[b]
-            a = b
+        while element != self._parent[element]:
+            parent = self._parent[element]
+            self._parent[element] = self._parent[parent]
+            element = parent
 
-        return a
+        return element
 
-    def find(self, a: T) -> T:
+    def find(self, element: T) -> T:
         """
-        Find the root of component of element a.
-        :param a: Element to find root of.
+        Find the root of component of element.
+        :param element: Element to find root of.
         :return: The root of the component.
         """
-        return self._find(a)
+        return self._find(element)
 
-    def union(self, a: T, b: T) -> None:
+    def union(self, element_1: T, element_2: T) -> None:
         """
         Unify components of two elements.
-        :param a: Element to unify.
-        :param b: Other element to unify.
+        :param element_1: Element to unify.
+        :param element_2: Other element to unify.
         :return:
         """
-        if a == b:
+        if element_1 == element_2:
             return
 
-        x = self._find(a)
-        y = self._find(b)
+        root_1 = self._find(element_1)
+        root_2 = self._find(element_2)
 
-        if x == y:
+        if root_1 == root_2:
             return
 
         # Weighted union - the smaller component becomes the child of the root of the larger component.
-        if self._size[x] < self._size[y]:
-            self._parent[x] = y
-            self._size[y] += self._size[x]
+        if self._size[root_1] < self._size[root_2]:
+            self._parent[root_1] = root_2
+            self._size[root_2] += self._size[root_1]
         else:
-            self._parent[y] = x
-            self._size[x] += self._size[y]
+            self._parent[root_2] = root_1
+            self._size[root_1] += self._size[root_2]
         self.components_count -= 1
 
-    def connected(self, a: T, b: T) -> bool:
+    def connected(self, element_1: T, element_2: T) -> bool:
         """
-        Check if element a and b are in the same component.
-        :param a: Element to check.
-        :param b: Other element to check.
-        :return: Whether a and b are in the same component.
+        Check if element 1 and 2 are in the same component.
+        :param element_1: Element to check.
+        :param element_2: Other element to check.
+        :return: Whether 1 and 2 are in the same component.
         """
-        return self._find(a) == self._find(b)
+        return self._find(element_1) == self._find(element_2)

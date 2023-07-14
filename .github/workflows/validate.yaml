@@ -7,40 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
-  validate_commit:
-    name: Validate commit
+  validate_code:
+    name: Validate code
     runs-on: ubuntu-latest
     if: ${{ github.ref != 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9.x'
+          python-version: '3.11.x'
           architecture: 'x64'
       - name: Install Poetry and dependencies
-        uses: SneaksAndData/github-actions/install_poetry@v0.0.8
+        uses: SneaksAndData/github-actions/install_poetry@v0.1.0
         with:
            pypi_repo_url: ${{ secrets.AZOPS_PYPI_REPO_URL }}
            pypi_token_username: ${{ secrets.AZOPS_PAT_USER }}
            pypi_token: ${{ secrets.AZOPS_PAT }}
            install_extras: "all"
-      - name: Black
-        shell: bash
-        run: |
-          set -e
-          poetry run black . --check --diff
-      - name: Lint
-        run: |
-          set -e
-          pypath=$(pwd)
-          export PYTHONPATH="$pypath:$PYTHONPATH"
-          find ./anti_clustering -type f -name "*.py" | xargs poetry run pylint
       - name: Unit test
         run: |
           set -e
           pypath=$(pwd)
           export PYTHONPATH="$pypath:$PYTHONPATH"
-          poetry run pytest ./tests --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=term-missing:skip-covered | tee pytest-coverage.txt
+          poetry run pytest ./tests --cov-config=.coveragerc --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=term-missing:skip-covered | tee pytest-coverage.txt
       - name: Publish Code Coverage
         uses: MishaKav/pytest-coverage-comment@main
         with:

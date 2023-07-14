@@ -1,14 +1,20 @@
 [MESSAGES CONTROL]
 
-# Disable the message, report, category or checker with the given id(s). You
-# can either give multiple identifier separated by comma (,) or put this option
-# multiple time (only on the command line, not in the configuration file where
-# it should appear only once).
-disable=W0212,R0903,C0301,R0914
+# Following warnings are globally disabled, please do not add more.
+# unnecessary-lambda-assignment / C3001
+# import-error / E0401
+# too-many-locals / R0914
+# too-few-public-methods / R0903
+
+disable=C3001,E0401,R0914,R0903
+
+min-similarity-lines=8
 
 [Format]
+good-names=i,j,k,e,_,x,y,df,f,lb,ub
 
-good-names=i,j,k,e,ex,_,pk,x,y,df,f,d,a,b,c,lb,ub
+[MAIN]
+max-line-length=121
 
 [DESIGN]
 max-args=10
