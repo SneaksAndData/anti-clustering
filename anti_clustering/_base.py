@@ -129,7 +129,7 @@ class AntiClustering(ABC):
         # Ensure that all labels are enumerated starting from 0 without gaps.
         cluster_labels = df.sort_values(by=[*numerical_columns, *categorical_columns])[destination_column].unique()
         mapping = {k: i for i, k in enumerate(cluster_labels)}
-        df = df.replace({"Cluster": mapping})
+        df = df.replace({destination_column: mapping})
 
         return df
 
