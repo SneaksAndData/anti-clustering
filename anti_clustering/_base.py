@@ -37,7 +37,6 @@ class AntiClustering(ABC):
         num_groups: int,
         destination_column: str,
     ) -> pd.DataFrame:
-        # pylint: disable = R0913
         """
         Run anti clustering algorithm on dataset.
         :param df: The dataset to run anti-clustering on.

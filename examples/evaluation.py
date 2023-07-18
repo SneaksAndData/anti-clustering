@@ -37,7 +37,7 @@ iris_df = pd.DataFrame(data=iris_data.data, columns=iris_data.feature_names)
 
 methods: List[AntiClustering] = [
     ExchangeHeuristicAntiClustering(),
-    SimulatedAnnealingHeuristicAntiClustering(alpha=0.95, iterations=10000, starting_temperature=10000),
+    SimulatedAnnealingHeuristicAntiClustering(alpha=0.95, iterations=5000, starting_temperature=1000, restarts=15),
     NaiveRandomHeuristicAntiClustering(),
     ExactClusterEditingAntiClustering(),
 ]
