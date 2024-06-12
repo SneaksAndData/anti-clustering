@@ -19,7 +19,6 @@ Papenberg, M., & Klau, G. W. (2021). Using anticlustering to partition data sets
 Psychological Methods, 26(2), 161–174. https://doi.org/10.1037/met0000301
 """
 
-import numpy as np
 import numpy.typing as npt
 from anti_clustering._cluster_swap_heuristic import ClusterSwapHeuristic
 

@@ -16,7 +16,6 @@ A simulated annealing with restarts approach to solving the anti-clustering prob
 """
 
 import math
-import numpy as np
 import numpy.typing as npt
 from anti_clustering._cluster_swap_heuristic import ClusterSwapHeuristic
 
