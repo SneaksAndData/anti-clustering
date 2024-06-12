@@ -12,33 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-A simulated annealing with restarts approach to solving the anti-clustering problem.
+A tabu search with restarts approach to solving the anti-clustering problem.
 """
 
-import math
 import numpy.typing as npt
 from anti_clustering._cluster_swap_heuristic import ClusterSwapHeuristic
 
 
-class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
+class TabuSearchHeuristicAntiClustering(ClusterSwapHeuristic):
     """
-    A simulated annealing with restarts approach to solving the anti-clustering problem.
+    A tabu search with restarts approach to solving the anti-clustering problem.
+    In this version, specific transformations are put in the tabu list not solutions.
     """
 
     def __init__(
         self,
         verbose: bool = False,
         random_seed: int = None,
-        alpha: float = 0.9,
+        tabu_tenure: int = 10,
         iterations: int = 2000,
-        starting_temperature: float = 100,
         restarts: int = 9,
     ):
         # pylint: disable = R0913
         super().__init__(verbose=verbose, random_seed=random_seed)
-        self.alpha = alpha
+        self.tabu_tenure = tabu_tenure
         self.iterations = iterations
-        self.starting_temperature = starting_temperature
         self.restarts = restarts
 
     def _solve(self, distance_matrix: npt.NDArray[float], num_groups: int) -> npt.NDArray[bool]:
@@ -51,7 +49,7 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
         candidate_solutions = []
 
         for restart in range(self.restarts):
-            temperature = self.starting_temperature
+            tabu_swaps = []
             # Initial objective value
             objective = self._calculate_objective(cluster_assignment, distance_matrix)
             for iteration in range(self.iterations):
@@ -60,23 +58,27 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
 
                 # Select random element
                 i = self.rnd.randint(0, len(distance_matrix) - 1)
+
                 # Get possible swaps
-                possible_exchanges = self._get_exchanges(cluster_assignment, i)
+                possible_exchanges = [j for j in self._get_exchanges(cluster_assignment, i) if (i,j) not in tabu_swaps and (j,i) not in tabu_swaps]
+
                 if len(possible_exchanges) == 0:
                     continue
-                # Select random possible swap.
+
+                # Generate possible assignments
                 j = possible_exchanges[self.rnd.randint(0, len(possible_exchanges) - 1)]
 
+                # Select random possible swap.
                 new_cluster_assignment = self._swap(cluster_assignment, i, j)
                 new_objective = self._calculate_objective(new_cluster_assignment, distance_matrix)
 
-                # Select solution as current if accepted
-                if self._accept(new_objective - objective, temperature):
-                    objective = new_objective
+                # Select solution as current if it improves the objective value
+                if new_objective > objective:
                     cluster_assignment = new_cluster_assignment
-
-                # Cool down temperature
-                temperature = temperature * self.alpha
+                    objective = new_objective
+                    tabu_swaps.append((i,j))
+                    if len(tabu_swaps) > self.tabu_tenure:
+                        tabu_swaps.pop(0)
 
             candidate_solutions.append((objective, cluster_assignment))
 
@@ -90,12 +92,3 @@ class SimulatedAnnealingHeuristicAntiClustering(ClusterSwapHeuristic):
         _, best_cluster_assignment = max(candidate_solutions, key=lambda x: x[0])
 
         return best_cluster_assignment
-
-    def _accept(self, delta: float, temperature: float) -> bool:
-        """
-        Simulated annealing acceptance function. Notice d/t is used instead of -d/t because we are maximizing.
-        :param delta: Difference in objective
-        :param temperature: Current temperature
-        :return: Whether the solution is accepted or not.
-        """
-        return delta >= 0 or math.exp(delta / temperature) >= self.rnd.uniform(0, 1)
