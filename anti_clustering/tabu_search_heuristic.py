@@ -60,7 +60,11 @@ class TabuSearchHeuristicAntiClustering(ClusterSwapHeuristic):
                 i = self.rnd.randint(0, len(distance_matrix) - 1)
 
                 # Get possible swaps
-                possible_exchanges = [j for j in self._get_exchanges(cluster_assignment, i) if (i,j) not in tabu_swaps and (j,i) not in tabu_swaps]
+                possible_exchanges = [
+                    j
+                    for j in self._get_exchanges(cluster_assignment, i)
+                    if (i, j) not in tabu_swaps and (j, i) not in tabu_swaps
+                ]
 
                 if len(possible_exchanges) == 0:
                     continue
@@ -76,7 +80,7 @@ class TabuSearchHeuristicAntiClustering(ClusterSwapHeuristic):
                 if new_objective > objective:
                     cluster_assignment = new_cluster_assignment
                     objective = new_objective
-                    tabu_swaps.append((i,j))
+                    tabu_swaps.append((i, j))
                     # Delete oldest tabu swap if tabu list is full
                     if len(tabu_swaps) > self.tabu_tenure:
                         tabu_swaps.pop(0)

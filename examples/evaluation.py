@@ -67,14 +67,16 @@ for k in range(2, 4):
         # Mean of differences
         mean_df = difference_df.reset_index(level=[1]).groupby(["level_1"]).mean()
 
-        summary.append(pd.DataFrame(
-            {
-                "Method": [method.__class__.__name__],
-                "Clusters": [k],
-                "∆M": [round(mean_df.loc['mean'][0], 4)],
-                "∆SD": [round(mean_df.loc['std'][0], 4)],
-                "Time (s)": [time_taken],
-            }
-        ))
+        summary.append(
+            pd.DataFrame(
+                {
+                    "Method": [method.__class__.__name__],
+                    "Clusters": [k],
+                    "∆M": [round(mean_df.loc["mean"][0], 4)],
+                    "∆SD": [round(mean_df.loc["std"][0], 4)],
+                    "Time (s)": [time_taken],
+                }
+            )
+        )
     print("Summary (lower ∆M and ∆SD is better):")
     print(pd.concat(summary).to_string())
