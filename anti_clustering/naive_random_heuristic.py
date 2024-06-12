@@ -32,7 +32,7 @@ class NaiveRandomHeuristicAntiClustering(ClusterSwapHeuristic):
         best_candidate = self._get_random_clusters(num_groups=num_groups, num_elements=len(distance_matrix))
         best_objective = self._calculate_objective(best_candidate, distance_matrix)
 
-        for iteration in range(self.iterations):
+        for _ in range(self.iterations):
             candidate = self._get_random_clusters(num_groups=num_groups, num_elements=len(distance_matrix))
             objective = self._calculate_objective(candidate, distance_matrix)
 
