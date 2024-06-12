@@ -77,6 +77,7 @@ class TabuSearchHeuristicAntiClustering(ClusterSwapHeuristic):
                     cluster_assignment = new_cluster_assignment
                     objective = new_objective
                     tabu_swaps.append((i,j))
+                    # Delete oldest tabu swap if tabu list is full
                     if len(tabu_swaps) > self.tabu_tenure:
                         tabu_swaps.pop(0)
 
