@@ -25,6 +25,7 @@ from anti_clustering import (
     ExchangeHeuristicAntiClustering,
     SimulatedAnnealingHeuristicAntiClustering,
     NaiveRandomHeuristicAntiClustering,
+    TabuSearchHeuristicAntiClustering,
     ExactClusterEditingAntiClustering,
     AntiClustering,
 )
@@ -36,15 +37,18 @@ iris_data = datasets.load_iris(as_frame=True)
 iris_df = pd.DataFrame(data=iris_data.data, columns=iris_data.feature_names)
 
 methods: List[AntiClustering] = [
+    TabuSearchHeuristicAntiClustering(iterations=5000, restarts=10, tabu_tenure=50),
     ExchangeHeuristicAntiClustering(restarts=20),
     SimulatedAnnealingHeuristicAntiClustering(alpha=0.95, iterations=5000, starting_temperature=1000, restarts=20),
     NaiveRandomHeuristicAntiClustering(),
-    ExactClusterEditingAntiClustering(),
+    # ExactClusterEditingAntiClustering(), # This method is extremely slow for large datasets
 ]
 
-for method in methods:
-    for k in range(2, 4):
-        print(f"Method: {method.__class__.__name__}, clusters: {k}")
+for k in range(2, 4):
+    print(f"------------- Number of clusters: {k} -------------")
+    summary = []
+    for method in methods:
+        print(f"Running method: {method.__class__.__name__}")
 
         start_time = time.time()
         df = method.run(
@@ -63,6 +67,16 @@ for method in methods:
         # Mean of differences
         mean_df = difference_df.reset_index(level=[1]).groupby(["level_1"]).mean()
 
-        print(f"∆M: {mean_df.loc['mean'][0]}")
-        print(f"∆SD: {mean_df.loc['std'][0]}")
-        print(f"Running time: {time_taken}s")
+        summary.append(
+            pd.DataFrame(
+                {
+                    "Method": [method.__class__.__name__],
+                    "Clusters": [k],
+                    "∆M": [round(mean_df.loc["mean"][0], 4)],
+                    "∆SD": [round(mean_df.loc["std"][0], 4)],
+                    "Time (s)": [time_taken],
+                }
+            )
+        )
+    print("Summary (lower ∆M and ∆SD is better):")
+    print(pd.concat(summary).to_string())
