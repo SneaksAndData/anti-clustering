@@ -28,8 +28,9 @@ class ExchangeHeuristicAntiClustering(ClusterSwapHeuristic):
     The exchange heuristic to solving the anti-clustering problem.
     """
 
-    def __init__(self, verbose: bool = False, random_seed: int = None):
+    def __init__(self, verbose: bool = False, random_seed: int = None, restarts: int = 9):
         super().__init__(verbose=verbose, random_seed=random_seed)
+        self.restarts = restarts
 
     def _solve(self, distance_matrix: npt.NDArray[float], num_groups: int) -> npt.NDArray[bool]:
         # Starts with random cluster assignment
@@ -38,31 +39,45 @@ class ExchangeHeuristicAntiClustering(ClusterSwapHeuristic):
         if self.verbose:
             print("Solving")
 
-        # Initial objective value
-        current_objective = self._calculate_objective(cluster_assignment, distance_matrix)
-        for i in range(len(distance_matrix)):
-            if self.verbose and i % 5 == 0:
-                print(f"Iteration {i + 1} of {len(distance_matrix)}")
+        candidate_solutions = []
 
-            # Get list of possible swaps
-            exchange_indices = self._get_exchanges(cluster_assignment, i)
+        for restart in range(self.restarts):
+            # Initial objective value
+            current_objective = self._calculate_objective(cluster_assignment, distance_matrix)
+            for i in range(len(distance_matrix)):
+                if self.verbose and i % 5 == 0:
+                    print(f"Iteration {i + 1} of {len(distance_matrix)}")
 
-            if len(exchange_indices) == 0:
-                continue
+                # Get list of possible swaps
+                exchange_indices = self._get_exchanges(cluster_assignment, i)
 
-            # Calculate objective value for all possible swaps.
-            # List contains tuples of obj. val. and swapped element index.
-            exchanges = [
-                (self._calculate_objective(self._swap(cluster_assignment, i, j), distance_matrix), j)
-                for j in exchange_indices
-            ]
+                if len(exchange_indices) == 0:
+                    continue
 
-            # Find best swap
-            best_exchange = max(exchanges)
+                # Calculate objective value for all possible swaps.
+                # List contains tuples of obj. val. and swapped element index.
+                exchanges = [
+                    (self._calculate_objective(self._swap(cluster_assignment, i, j), distance_matrix), j)
+                    for j in exchange_indices
+                ]
 
-            # If best swap is better than current objective value then complete swap
-            if best_exchange[0] > current_objective:
-                cluster_assignment = self._swap(cluster_assignment, i, best_exchange[1])
-                current_objective = best_exchange[0]
+                # Find best swap
+                best_exchange = max(exchanges)
 
-        return cluster_assignment
+                # If best swap is better than current objective value then complete swap
+                if best_exchange[0] > current_objective:
+                    cluster_assignment = self._swap(cluster_assignment, i, best_exchange[1])
+                    current_objective = best_exchange[0]
+
+            candidate_solutions.append((current_objective, cluster_assignment))
+
+            if self.verbose:
+                print(f"Restart {restart + 1} of {self.restarts}")
+
+            # Cold restart, select random cluster assignment
+            cluster_assignment = self._get_random_clusters(num_groups=num_groups, num_elements=len(distance_matrix))
+
+        # Select best solution, maximizing objective
+        _, best_cluster_assignment = max(candidate_solutions, key=lambda x: x[0])
+
+        return best_cluster_assignment
