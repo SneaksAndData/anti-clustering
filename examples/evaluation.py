@@ -38,8 +38,8 @@ iris_df = pd.DataFrame(data=iris_data.data, columns=iris_data.feature_names)
 
 methods: List[AntiClustering] = [
     TabuSearchHeuristicAntiClustering(iterations=5000, restarts=10, tabu_tenure=50),
-    ExchangeHeuristicAntiClustering(),
-    SimulatedAnnealingHeuristicAntiClustering(alpha=0.95, iterations=5000, starting_temperature=1000, restarts=15),
+    ExchangeHeuristicAntiClustering(restarts=20),
+    SimulatedAnnealingHeuristicAntiClustering(alpha=0.95, iterations=5000, starting_temperature=1000, restarts=20),
     NaiveRandomHeuristicAntiClustering(),
     # ExactClusterEditingAntiClustering(), # This method is extremely slow for large datasets
 ]
