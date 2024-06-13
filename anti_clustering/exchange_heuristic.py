@@ -19,7 +19,6 @@ Papenberg, M., & Klau, G. W. (2021). Using anticlustering to partition data sets
 Psychological Methods, 26(2), 161–174. https://doi.org/10.1037/met0000301
 """
 
-import numpy as np
 import numpy.typing as npt
 from anti_clustering._cluster_swap_heuristic import ClusterSwapHeuristic
 
@@ -82,12 +81,3 @@ class ExchangeHeuristicAntiClustering(ClusterSwapHeuristic):
         _, best_cluster_assignment = max(candidate_solutions, key=lambda x: x[0])
 
         return best_cluster_assignment
-
-    def _calculate_objective(self, cluster_assignment: npt.NDArray[bool], distance_matrix: npt.NDArray[float]) -> float:
-        """
-        Calculate objective value
-        :param cluster_assignment: Cluster assignment matrix
-        :param distance_matrix: Cost matrix
-        :return: Objective value
-        """
-        return np.multiply(cluster_assignment, distance_matrix).sum()
