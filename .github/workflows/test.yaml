@@ -1,0 +1,62 @@
+name: Code unit tests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate_code:
+    name: Code unit tests
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    if: ${{ github.ref != 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.x'
+          architecture: 'x64'
+
+      - name: Import Secrets
+        uses: hashicorp/vault-action@v2.7.3
+        with:
+          url: https://hashicorp-vault.awsp.sneaksanddata.com/
+          role: github
+          method: jwt
+          secrets: |
+            /secret/data/common/package-publishing/aws-ca/production/artifact-user access_key ;
+            /secret/data/common/package-publishing/aws-ca/production/artifact-user access_key_id ;
+      - name: Setup AWS CA
+        uses: SneaksAndData/github-actions/setup_aws_ca@v0.1.9
+        with:
+          aws_access_key: ${{ env.ACCESS_KEY }}
+          aws_access_key_id: ${{ env.ACCESS_KEY_ID }}
+          mode: read
+          aws_ca_domain: esd-code-artifact-production
+          aws_ca_domain_owner: 497010676583
+          aws_ca_repository: esd-artifacts
+        id: setup_aws_ca
+      - name: Install Poetry and dependencies
+        uses: SneaksAndData/github-actions/install_poetry@v0.1.9
+        with:
+          pypi_repo_url: ${{ steps.setup_aws_ca.outputs.url }}
+          pypi_token_username: ${{ steps.setup_aws_ca.outputs.user }}
+          pypi_token: ${{ steps.setup_aws_ca.outputs.token }}
+          install_extras: "all"
+
+      - name: Run test
+        run: |
+          set -euo pipefail
+
+          poetry run pytest ./tests --cov-config=.coveragerc --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=term-missing:skip-covered | tee pytest-coverage.txt
+      - name: Publish Code Coverage
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
