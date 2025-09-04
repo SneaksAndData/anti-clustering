@@ -1,13 +1,15 @@
 [tool.poetry]
 name = "anti-clustering"
 version = "0.0.0"
-description = "Generic Anti-Clustering"
+description = "Generic Anti-Clustering Algorithm for Creating Maximally Diverse Clusters"
 authors = ["Matthias Als <mata@ecco.com>"]
 readme = "README.md"
+repository = 'https://github.com/SneaksAndData/anti-clustering'
+license = 'Apache-2.0'
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
-ortools = "==9.6.2534"
+python = ">=3.8"
+ortools = "^9.6"
 pandas = "^2.0.0"
 numpy = "^1.23.1"
 scipy = "^1.9.0"
